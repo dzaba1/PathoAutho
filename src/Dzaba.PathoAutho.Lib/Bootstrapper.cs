@@ -12,6 +12,8 @@ namespace Dzaba.PathoAutho.Lib
             Require.NotNull(optionsAction, nameof(optionsAction));
 
             services.AddDbContext<AppDbContext>(optionsAction);
+
+            services.AddTransient<IRegisterService, RegisterService>();
         }
     }
 }
