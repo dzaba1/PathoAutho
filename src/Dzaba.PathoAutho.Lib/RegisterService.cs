@@ -1,12 +1,11 @@
 ﻿using Dzaba.PathoAutho.Contracts;
-using Dzaba.Utils;
 using Microsoft.AspNetCore.Identity;
 
 namespace Dzaba.PathoAutho.Lib;
 
 public interface IRegisterService
 {
-    Task<IdentityResult> RegisterAsync(RegisterUser newUser);
+    Task RegisterAsync(RegisterUser newUser);
 }
 
 internal sealed class RegisterService : IRegisterService
@@ -15,21 +14,23 @@ internal sealed class RegisterService : IRegisterService
 
     public RegisterService(UserManager<IdentityUser> userManager)
     {
-        Require.NotNull(userManager, nameof(userManager));
+        ArgumentNullException.ThrowIfNull(userManager, nameof(userManager));
 
         this.userManager = userManager;
     }
 
-    public async Task<IdentityResult> RegisterAsync(RegisterUser newUser)
+    public async Task RegisterAsync(RegisterUser newUser)
     {
-        Require.NotNull(newUser, nameof(newUser));
+        ArgumentNullException.ThrowIfNull(newUser, nameof(newUser));
 
         var identity = new IdentityUser(newUser.Email)
         {
             Email = newUser.Email
         };
 
-        return await userManager.CreateAsync(identity, newUser.Password)
+        var result = await userManager.CreateAsync(identity, newUser.Password)
             .ConfigureAwait(false);
+
+        result.EnsureSuccess();
     }
 }

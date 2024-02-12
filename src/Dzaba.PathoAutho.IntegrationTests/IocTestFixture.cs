@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Serilog;
 
 namespace Dzaba.PathoAutho.IntegrationTests
 {
-    internal class IocTestFixture
+    public class IocTestFixture
     {
         private ServiceProvider container;
 
@@ -17,6 +18,12 @@ namespace Dzaba.PathoAutho.IntegrationTests
             var services = new ServiceCollection();
             services.RegisterDzabaPathoAuthoLib(o => o.UseInMemoryDatabase("IntegrationTestPathoAutho"));
 
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .CreateLogger();
+            services.AddLogging(l => l.AddSerilog(logger, true));
+
             container = services.BuildServiceProvider();
 
             InitDb();
@@ -24,7 +31,7 @@ namespace Dzaba.PathoAutho.IntegrationTests
 
         private void InitDb()
         {
-            Container.GetRequiredService<DbContext>().Database.EnsureCreated();
+            Container.GetRequiredService<AppDbContext>().Database.EnsureCreated();
         }
 
         [TearDown]
