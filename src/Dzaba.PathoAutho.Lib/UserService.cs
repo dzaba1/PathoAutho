@@ -1,4 +1,5 @@
 ﻿using Dzaba.PathoAutho.Contracts;
+using Dzaba.PathoAutho.Lib.Model;
 using Microsoft.AspNetCore.Identity;
 
 namespace Dzaba.PathoAutho.Lib;
@@ -10,9 +11,9 @@ public interface IUserService
 
 internal sealed class UserService : IUserService
 {
-    private readonly UserManager<IdentityUser> userManager;
+    private readonly UserManager<PathoIdentityUser> userManager;
 
-    public UserService(UserManager<IdentityUser> userManager)
+    public UserService(UserManager<PathoIdentityUser> userManager)
     {
         ArgumentNullException.ThrowIfNull(userManager, nameof(userManager));
 
@@ -23,7 +24,7 @@ internal sealed class UserService : IUserService
     {
         ArgumentNullException.ThrowIfNull(newUser, nameof(newUser));
 
-        var identity = new IdentityUser(newUser.Email)
+        var identity = new PathoIdentityUser(newUser.Email)
         {
             Email = newUser.Email
         };
