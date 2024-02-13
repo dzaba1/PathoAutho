@@ -10,8 +10,13 @@ public class HandleErrorsAttribute : ActionFilterAttribute, IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
+        var container = context.HttpContext.RequestServices;
+        var logger = container.GetRequiredService<ILogger<HandleErrorsAttribute>>();
+
         if (context.Exception is ModelStateException msEx)
         {
+            logger.LogWarning(msEx, "Model state error");
+
             var modelState = new ModelStateDictionary();
             foreach (var error in msEx.Errors)
             {
@@ -21,9 +26,5 @@ public class HandleErrorsAttribute : ActionFilterAttribute, IExceptionFilter
             context.Result = new BadRequestObjectResult(modelState);
             return;
         }
-
-        var container = context.HttpContext.RequestServices;
-        var logger = container.GetRequiredService<ILogger<HandleErrorsAttribute>>();
-        logger.LogError(context.Exception, "Some error");
     }
 }

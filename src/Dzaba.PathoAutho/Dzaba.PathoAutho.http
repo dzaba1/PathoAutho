@@ -1,6 +1,6 @@
 @Dzaba.PathoAutho_HostAddress = http://localhost:5042
 
-GET {{Dzaba.PathoAutho_HostAddress}}/weatherforecast/
+POST {{Dzaba.PathoAutho_HostAddress}}/user/
 Accept: application/json
 
 ###
