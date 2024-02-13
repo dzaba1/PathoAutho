@@ -1,0 +1,29 @@
+﻿using Dzaba.PathoAutho.Lib;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+
+namespace Dzaba.PathoAutho.ActionFilters;
+
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
+public class HandleErrorsAttribute : ActionFilterAttribute, IExceptionFilter
+{
+    public void OnException(ExceptionContext context)
+    {
+        if (context.Exception is ModelStateException msEx)
+        {
+            var modelState = new ModelStateDictionary();
+            foreach (var error in msEx.Errors)
+            {
+                modelState.AddModelError(error.Key, error.Value);
+            }
+
+            context.Result = new BadRequestObjectResult(modelState);
+            return;
+        }
+
+        var container = context.HttpContext.RequestServices;
+        var logger = container.GetRequiredService<ILogger<HandleErrorsAttribute>>();
+        logger.LogError(context.Exception, "Some error");
+    }
+}

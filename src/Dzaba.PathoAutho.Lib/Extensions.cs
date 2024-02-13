@@ -13,6 +13,6 @@ public static class Extensions
             return;
         }
 
-        throw new IdentityException(result.ToString(), result.Errors); 
+        throw new ModelStateException(result.ToString(), result.Errors.Select(e => new KeyValuePair<string, string>(e.Code, e.Description))); 
     }
 }

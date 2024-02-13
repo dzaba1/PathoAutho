@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Dzaba.PathoAutho;
+namespace Dzaba.PathoAutho.ActionFilters;
 
-[AttributeUsage(AttributeTargets.All, Inherited = true, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
 public sealed class ValidateModelAttribute : ActionFilterAttribute
 {
     public override void OnActionExecuting(ActionExecutingContext context)
