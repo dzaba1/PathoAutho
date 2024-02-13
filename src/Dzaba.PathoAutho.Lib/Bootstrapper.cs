@@ -12,10 +12,10 @@ namespace Dzaba.PathoAutho.Lib
             ArgumentNullException.ThrowIfNull(optionsAction, nameof(optionsAction));
 
             services.AddDbContext<AppDbContext>(optionsAction);
-            services.AddIdentity<IdentityUser, IdentityRole>()
+            services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<AppDbContext>();
 
-            services.AddTransient<IRegisterService, RegisterService>();
+            services.AddTransient<IUserService, UserService>();
         }
     }
 }

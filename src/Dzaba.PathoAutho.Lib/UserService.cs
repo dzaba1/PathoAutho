@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Dzaba.PathoAutho.Lib;
 
-public interface IRegisterService
+public interface IUserService
 {
     Task RegisterAsync(RegisterUser newUser);
 }
 
-internal sealed class RegisterService : IRegisterService
+internal sealed class UserService : IUserService
 {
     private readonly UserManager<IdentityUser> userManager;
 
-    public RegisterService(UserManager<IdentityUser> userManager)
+    public UserService(UserManager<IdentityUser> userManager)
     {
         ArgumentNullException.ThrowIfNull(userManager, nameof(userManager));
 

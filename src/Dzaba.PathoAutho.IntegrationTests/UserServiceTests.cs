@@ -6,11 +6,11 @@ using NUnit.Framework;
 namespace Dzaba.PathoAutho.IntegrationTests
 {
     [TestFixture]
-    public class RegisterServiceTests : IocTestFixture
+    public class UserServiceTests : IocTestFixture
     {
-        private IRegisterService CreateSut()
+        private IUserService CreateSut()
         {
-            return Container.GetRequiredService<IRegisterService>();
+            return Container.GetRequiredService<IUserService>();
         }
 
         [Test]
