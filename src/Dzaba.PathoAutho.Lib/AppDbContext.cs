@@ -15,9 +15,12 @@ public class AppDbContext : IdentityDbContext<PathoIdentityUser>
         base.OnModelCreating(modelBuilder);
 
         Permission.Configure(modelBuilder.Entity<Permission>());
+        UserPermission.Configure(modelBuilder.Entity<UserPermission>());
     }
 
     public DbSet<Application> Applications { get; set; }
 
     public DbSet<Permission> Permissions { get; set; }
+
+    public DbSet<UserPermission> UserPermissions { get; set; }
 }

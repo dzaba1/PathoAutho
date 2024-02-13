@@ -19,6 +19,8 @@ public class Permission
     public int ApplicationId { get; set; }
     public virtual Application Application { get; set; }
 
+    public virtual ICollection<UserPermission> Users { get; set; }
+
     public static void Configure(EntityTypeBuilder<Permission> builder)
     {
         builder.HasOne(p => p.Application)

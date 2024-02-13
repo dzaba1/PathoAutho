@@ -8,4 +8,6 @@ public class PathoIdentityUser : IdentityUser
         : base(userName)
     {
     }
+
+    public virtual ICollection<UserPermission> Permissions { get; set; }
 }
