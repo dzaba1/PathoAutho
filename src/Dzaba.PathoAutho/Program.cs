@@ -1,7 +1,17 @@
 using Dzaba.PathoAutho.Lib;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"logs\PathoAutho.log");
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console(LogEventLevel.Information)
+    .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true)
+    .CreateLogger();
+builder.Services.AddLogging(l => l.AddSerilog(logger, true));
 
 // Add services to the container.
 builder.Services.RegisterDzabaPathoAuthoLib(o => o.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
