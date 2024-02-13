@@ -11,7 +11,11 @@ public static class Bootstrapper
         ArgumentNullException.ThrowIfNull(services, nameof(services));
         ArgumentNullException.ThrowIfNull(optionsAction, nameof(optionsAction));
 
-        services.AddDbContext<AppDbContext>(optionsAction);
+        services.AddDbContext<AppDbContext>(o =>
+        {
+            o.UseLazyLoadingProxies();
+            optionsAction(o);
+        });
         services.AddDefaultIdentity<PathoIdentityUser>()
             .AddEntityFrameworkStores<AppDbContext>();
 

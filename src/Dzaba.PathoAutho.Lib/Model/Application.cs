@@ -13,4 +13,6 @@ public class Application
     [Required(AllowEmptyStrings = false)]
     [MaxLength(256)]
     public string Name { get; set; }
+
+    public virtual ICollection<Permission> Permissions { get; set; }
 }
