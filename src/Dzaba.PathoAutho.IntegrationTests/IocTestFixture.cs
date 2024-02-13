@@ -4,40 +4,39 @@ using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Serilog;
 
-namespace Dzaba.PathoAutho.IntegrationTests
+namespace Dzaba.PathoAutho.IntegrationTests;
+
+public class IocTestFixture
 {
-    public class IocTestFixture
+    private ServiceProvider container;
+
+    protected IServiceProvider Container => container;
+
+    [SetUp]
+    public void SetupContainer()
     {
-        private ServiceProvider container;
+        var services = new ServiceCollection();
+        services.RegisterDzabaPathoAuthoLib(o => o.UseInMemoryDatabase("IntegrationTestPathoAutho"));
 
-        protected IServiceProvider Container => container;
+        var logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Console()
+            .CreateLogger();
+        services.AddLogging(l => l.AddSerilog(logger, true));
 
-        [SetUp]
-        public void SetupContainer()
-        {
-            var services = new ServiceCollection();
-            services.RegisterDzabaPathoAuthoLib(o => o.UseInMemoryDatabase("IntegrationTestPathoAutho"));
+        container = services.BuildServiceProvider();
 
-            var logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console()
-                .CreateLogger();
-            services.AddLogging(l => l.AddSerilog(logger, true));
+        InitDb();
+    }
 
-            container = services.BuildServiceProvider();
+    private void InitDb()
+    {
+        Container.GetRequiredService<AppDbContext>().Database.EnsureCreated();
+    }
 
-            InitDb();
-        }
-
-        private void InitDb()
-        {
-            Container.GetRequiredService<AppDbContext>().Database.EnsureCreated();
-        }
-
-        [TearDown]
-        public void DisposeContainer()
-        {
-            container?.Dispose();
-        }
+    [TearDown]
+    public void DisposeContainer()
+    {
+        container?.Dispose();
     }
 }

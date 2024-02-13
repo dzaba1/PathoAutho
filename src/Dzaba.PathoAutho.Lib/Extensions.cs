@@ -1,19 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Dzaba.PathoAutho.Lib
+namespace Dzaba.PathoAutho.Lib;
+
+public static class Extensions
 {
-    public static class Extensions
+    public static void EnsureSuccess(this IdentityResult result)
     {
-        public static void EnsureSuccess(this IdentityResult result)
+        ArgumentNullException.ThrowIfNull(result, nameof(result));
+
+        if (result.Succeeded)
         {
-            ArgumentNullException.ThrowIfNull(result, nameof(result));
-
-            if (result.Succeeded)
-            {
-                return;
-            }
-
-            throw new IdentityException(result.ToString(), result.Errors); 
+            return;
         }
+
+        throw new IdentityException(result.ToString(), result.Errors); 
     }
 }
