@@ -1,5 +1,6 @@
 ﻿using Dzaba.PathoAutho.Contracts;
 using Dzaba.PathoAutho.Lib;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -24,5 +25,8 @@ public class UserServiceTests : IocTestFixture
 
         var sut = CreateSut();
         await sut.RegisterAsync(model).ConfigureAwait(false);
+
+        var user = await sut.FindUserByNameAsync(model.Email).ConfigureAwait(false);
+        user.Should().NotBeNull();
     }
 }
