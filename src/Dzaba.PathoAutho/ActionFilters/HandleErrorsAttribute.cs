@@ -26,5 +26,16 @@ public class HandleErrorsAttribute : ActionFilterAttribute, IExceptionFilter
             context.Result = new BadRequestObjectResult(modelState);
             return;
         }
+
+        if (context.Exception is HttpResponseException httpEx)
+        {
+            logger.LogWarning(httpEx, "HTTP response error");
+
+            context.Result = new ObjectResult(httpEx.Message)
+            {
+                StatusCode = (int)httpEx.StatusCode
+            };
+            return;
+        }
     }
 }
