@@ -59,7 +59,8 @@ namespace Dzaba.PathoAutho.Lib
                 {
                     var claims = new[] {
                         new Claim("UserId", pathoIdentity.Id),
-                        new Claim("UserName", username),
+                        new Claim(ClaimTypes.Name, username),
+                        new Claim(ClaimTypes.Email, pathoIdentity.Email),
                     };
 
                     var identity = new ClaimsIdentity(claims, AuthenticationName);
