@@ -42,6 +42,11 @@ namespace Dzaba.PathoAutho.Lib
                 return AuthenticateResult.Fail("Error parsing Authorization header value.");
             }
 
+            if (!string.Equals(authorizationHeader.Scheme, "Basic", StringComparison.OrdinalIgnoreCase))
+            {
+                return AuthenticateResult.Fail("Invalid Authorization header value.");
+            }
+
             try
             {
                 var credentialBytes = Convert.FromBase64String(authorizationHeader.Parameter);
@@ -58,9 +63,9 @@ namespace Dzaba.PathoAutho.Lib
                 if (await loginService.PasswordMatchAsync(pathoIdentity, password).ConfigureAwait(false))
                 {
                     var claims = new[] {
-                        new Claim("UserId", pathoIdentity.Id),
-                        new Claim(ClaimTypes.Name, username),
-                        new Claim(ClaimTypes.Email, pathoIdentity.Email),
+                        new Claim("UserId", pathoIdentity.Id, ClaimValueTypes.String),
+                        new Claim(ClaimTypes.Name, username, ClaimValueTypes.String),
+                        new Claim(ClaimTypes.Email, pathoIdentity.Email, ClaimValueTypes.Email),
                     };
 
                     var identity = new ClaimsIdentity(claims, AuthenticationName);
