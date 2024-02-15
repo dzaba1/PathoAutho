@@ -20,5 +20,6 @@ public static class Bootstrapper
             .AddEntityFrameworkStores<AppDbContext>();
 
         services.AddTransient<IUserService, UserService>();
+        services.AddTransient<ILoginService, LoginService>();
     }
 }

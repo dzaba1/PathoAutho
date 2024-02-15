@@ -29,7 +29,7 @@ public class HandleErrorsAttribute : ActionFilterAttribute, IExceptionFilter
 
         if (context.Exception is HttpResponseException httpEx)
         {
-            logger.LogWarning(httpEx, "HTTP response error");
+            logger.LogWarning(httpEx, "HTTP response error. Code {StatusCode}", httpEx.StatusCode);
 
             context.Result = new ObjectResult(httpEx.Message)
             {
