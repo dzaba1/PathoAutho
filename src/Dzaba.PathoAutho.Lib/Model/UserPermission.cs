@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dzaba.PathoAutho.Lib.Model;
 
-[Table("Applications")]
+[Table("UserPermissions")]
 public class UserPermission
 {
     public int PermissionId { get; set; }

@@ -16,7 +16,7 @@ public class IocTestFixture
     public void SetupContainer()
     {
         var services = new ServiceCollection();
-        services.RegisterDzabaPathoAuthoLib(o => o.UseInMemoryDatabase("IntegrationTestPathoAutho"));
+        services.RegisterDzabaPathoAuthoLib(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()));
 
         var logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
