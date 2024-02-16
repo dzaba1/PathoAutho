@@ -16,6 +16,8 @@ public class AppDbContext : IdentityDbContext<PathoIdentityUser>
 
         Permission.Configure(modelBuilder.Entity<Permission>());
         UserPermission.Configure(modelBuilder.Entity<UserPermission>());
+        PathoRole.Configure(modelBuilder.Entity<PathoRole>());
+        UserRole.Configure(modelBuilder.Entity<UserRole>());
     }
 
     public DbSet<Application> Applications { get; set; }
@@ -23,4 +25,8 @@ public class AppDbContext : IdentityDbContext<PathoIdentityUser>
     public DbSet<Permission> Permissions { get; set; }
 
     public DbSet<UserPermission> UserPermissions { get; set; }
+
+    public DbSet<PathoRole> PathoRoles { get; set; }
+
+    public DbSet<UserRole> PathoUserRoles { get; set; }
 }

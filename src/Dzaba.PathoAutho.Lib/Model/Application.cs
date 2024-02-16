@@ -8,11 +8,13 @@ public class Application
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     [Required(AllowEmptyStrings = false)]
     [MaxLength(256)]
     public string Name { get; set; }
 
     public virtual ICollection<Permission> Permissions { get; set; }
+
+    public virtual ICollection<PathoRole> Roles { get; set; }
 }
