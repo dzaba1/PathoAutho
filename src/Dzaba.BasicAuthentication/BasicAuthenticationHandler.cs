@@ -46,20 +46,24 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
             var credentialsArray = Encoding.UTF8.GetString(credentialBytes).Split(':');
             var credentials = new BasicAuthenticationCredentials(credentialsArray[0], credentialsArray[1]);
 
-            if (await handlerService.CheckPasswordAsync(credentials).ConfigureAwait(false))
+            var checkPasswordResult = await handlerService.CheckPasswordAsync(credentials).ConfigureAwait(false);
+
+            if (!checkPasswordResult.Success)
             {
-                var claims = new List<Claim>(1)
+                return AuthenticateResult.Fail("Username or password is invalid");
+            }
+
+            var claims = new List<Claim>(1)
                 {
                     new Claim(ClaimTypes.Name, credentials.UserName, ClaimValueTypes.String),
                 };
 
-                var identity = new ClaimsIdentity(claims, Constants.AuthenticationName);
-                var principal = new ClaimsPrincipal(identity);
-                var ticket = new AuthenticationTicket(principal, Constants.SchemeName);
-                return AuthenticateResult.Success(ticket);
-            }
+            await handlerService.AddClaimsAsync(credentials, claims, checkPasswordResult.Context).ConfigureAwait(false);
 
-            return AuthenticateResult.Fail("Username or password is invalid");
+            var identity = new ClaimsIdentity(claims, Constants.AuthenticationName);
+            var principal = new ClaimsPrincipal(identity);
+            var ticket = new AuthenticationTicket(principal, Constants.SchemeName);
+            return AuthenticateResult.Success(ticket);
         }
         catch (Exception ex)
         {
