@@ -11,5 +11,5 @@ public class PathoIdentityUser : IdentityUser
 
     public virtual ICollection<UserPermission> Permissions { get; set; }
 
-    public virtual ICollection<UserRole> PathoRoles { get; set; }
+    public virtual ICollection<PathoUserRole> PathoRoles { get; set; }
 }

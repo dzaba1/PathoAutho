@@ -6,6 +6,7 @@
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
@@ -23,6 +24,7 @@
     <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
   </ItemGroup>
   <PropertyGroup>
     <Authors>dzaba1</Authors>

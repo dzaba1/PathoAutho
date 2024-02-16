@@ -28,6 +28,7 @@ public static class Bootstrapper
 
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<ILoginService, LoginService>();
+        services.AddTransient<IClaimsService, ClaimsService>();
 
         services.AddBasicAuthentication<BasicAuthenticationHandlerService>();
         services.AddAuthentication(o =>

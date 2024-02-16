@@ -13,10 +13,13 @@ namespace Dzaba.PathoAutho.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService userService;
+    private readonly IClaimsService claimsService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService,
+        IClaimsService claimsService)
     {
         this.userService = userService;
+        this.claimsService = claimsService;
     }
 
     [HttpPost]
@@ -29,10 +32,14 @@ public class UserController : ControllerBase
 
     [HttpGet("current")]
     [Authorize]
-    public async Task<UserWithPermissions> GetCurrent()
+    public async Task<UserClaims> GetCurrent()
     {
         var user = await userService.FindUserByNameAsync(User.Identity.Name).ConfigureAwait(false);
-        return new UserWithPermissions
+        var claims = await claimsService.GetAppClaimsModelForUserAsync(user.Id)
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        return new UserClaims
         {
             User = new User
             {
@@ -40,16 +47,7 @@ public class UserController : ControllerBase
                 Email = user.Email,
                 Name = user.UserName
             },
-            Permisions = user.Permissions.Select(p => new Permision
-            {
-                Id = p.PermissionId,
-                Name = p.Permission.Name,
-                Application = new Application
-                {
-                    Id = p.Permission.ApplicationId,
-                    Name = p.Permission.Application.Name
-                }
-            }).ToArray()
+            Claims = claims
         };
     }
 }

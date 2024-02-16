@@ -1,8 +1,7 @@
 ﻿namespace Dzaba.PathoAutho.Contracts;
 
-public sealed class Permision
+public sealed class Claim
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public Application Application { get; set; }
 }

@@ -1,4 +1,6 @@
-﻿using Dzaba.PathoAutho.Lib;
+﻿using Dzaba.PathoAutho.Contracts;
+using Dzaba.PathoAutho.Lib;
+using Dzaba.PathoAutho.Lib.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -38,5 +40,19 @@ public class IocTestFixture
     public void DisposeContainer()
     {
         container?.Dispose();
+    }
+
+    protected async Task<PathoIdentityUser> AddUserAsync(string email = "test@test.com", string password = "Password1!")
+    {
+        var model = new RegisterUser
+        {
+            Email = email,
+            Password = password
+        };
+
+        var userMgr = Container.GetRequiredService<IUserService>();
+        await userMgr.RegisterAsync(model).ConfigureAwait(false);
+
+        return await userMgr.FindUserByNameAsync(model.Email).ConfigureAwait(false);
     }
 }

@@ -4,8 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dzaba.PathoAutho.Lib.Model;
 
-[Table("UserRoles")]
-public class UserRole
+[Table("PathoUserRoles")]
+public class PathoUserRole
 {
     public int RoleId { get; set; }
     public string UserId { get; set; } 
@@ -14,7 +14,7 @@ public class UserRole
 
     public virtual PathoIdentityUser User { get; set; }
 
-    public static void Configure(EntityTypeBuilder<UserRole> builder)
+    public static void Configure(EntityTypeBuilder<PathoUserRole> builder)
     {
         builder.HasKey(p => new {p.RoleId, p.UserId});
 

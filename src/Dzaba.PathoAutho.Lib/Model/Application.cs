@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dzaba.PathoAutho.Lib.Model;
@@ -17,4 +19,10 @@ public class Application
     public virtual ICollection<Permission> Permissions { get; set; }
 
     public virtual ICollection<PathoRole> Roles { get; set; }
+
+    public static void Configure(EntityTypeBuilder<Application> builder)
+    {
+        builder.HasIndex(p => p.Name)
+            .IsUnique();
+    }
 }

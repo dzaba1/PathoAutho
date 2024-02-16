@@ -23,9 +23,6 @@ public class Permission
 
     public static void Configure(EntityTypeBuilder<Permission> builder)
     {
-        builder.HasIndex(p => p.Name)
-            .IsUnique();
-
         builder.HasOne(p => p.Application)
             .WithMany(p => p.Permissions)
             .HasForeignKey(p => p.ApplicationId)
