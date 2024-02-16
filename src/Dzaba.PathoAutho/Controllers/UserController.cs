@@ -1,6 +1,7 @@
 ﻿using Dzaba.PathoAutho.ActionFilters;
 using Dzaba.PathoAutho.Contracts;
 using Dzaba.PathoAutho.Lib;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,12 +21,14 @@ public class UserController : ControllerBase
 
     [HttpPost]
     [ValidateModel]
+    [AllowAnonymous]
     public async Task Register([FromBody, Required] RegisterUser newUser)
     {
         await userService.RegisterAsync(newUser).ConfigureAwait(false);
     }
 
     [HttpGet("current")]
+    [Authorize]
     public async Task<UserWithPermissions> GetCurrent()
     {
         var user = await userService.FindUserByNameAsync(User.Identity.Name).ConfigureAwait(false);

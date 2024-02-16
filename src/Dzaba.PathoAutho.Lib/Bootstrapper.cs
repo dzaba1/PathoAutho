@@ -1,4 +1,5 @@
-﻿using Dzaba.PathoAutho.Lib.Model;
+﻿using Dzaba.BasicAuthentication;
+using Dzaba.PathoAutho.Lib.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,13 +29,10 @@ public static class Bootstrapper
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<ILoginService, LoginService>();
 
+        services.AddBasicAuthentication<BasicAuthenticationHandlerService>();
         services.AddAuthentication(o =>
         {
-            o.AddScheme<BasicAuthenticationHandler>(BasicAuthenticationHandler.SchemeName, "Basic authentication");
-
-            o.DefaultAuthenticateScheme = BasicAuthenticationHandler.SchemeName;
-            o.DefaultChallengeScheme = BasicAuthenticationHandler.SchemeName;
-            o.DefaultSignInScheme = BasicAuthenticationHandler.SchemeName;
+            o.AddBasicAuthenticationScheme(true);
         });
     }
 

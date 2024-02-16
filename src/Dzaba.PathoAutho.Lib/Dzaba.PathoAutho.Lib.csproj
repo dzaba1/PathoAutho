@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj" />
     <ProjectReference Include="..\Dzaba.PathoAutho.Contracts\Dzaba.PathoAutho.Contracts.csproj" />
   </ItemGroup>
 </Project>

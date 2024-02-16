@@ -7,14 +7,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.PathoAutho", "src\Dza
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.PathoAutho.Lib", "src\Dzaba.PathoAutho.Lib\Dzaba.PathoAutho.Lib.csproj", "{65C7FD44-A52A-4894-AD42-C93B0E6E1A88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.PathoAutho.IntegrationTests", "src\Dzaba.PathoAutho.IntegrationTests\Dzaba.PathoAutho.IntegrationTests.csproj", "{524B7892-181C-4541-9F9A-AA79B547867D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.PathoAutho.IntegrationTests", "src\Dzaba.PathoAutho.IntegrationTests\Dzaba.PathoAutho.IntegrationTests.csproj", "{524B7892-181C-4541-9F9A-AA79B547867D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.PathoAutho.Contracts", "src\Dzaba.PathoAutho.Contracts\Dzaba.PathoAutho.Contracts.csproj", "{17E808C3-85E2-4919-8173-B8FE338E9768}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.PathoAutho.Contracts", "src\Dzaba.PathoAutho.Contracts\Dzaba.PathoAutho.Contracts.csproj", "{17E808C3-85E2-4919-8173-B8FE338E9768}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3547CC73-BDE3-4519-A717-90A66B6FA0E0}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.BasicAuthentication", "src\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj", "{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{17E808C3-85E2-4919-8173-B8FE338E9768}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17E808C3-85E2-4919-8173-B8FE338E9768}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17E808C3-85E2-4919-8173-B8FE338E9768}.Release|Any CPU.Build.0 = Release|Any CPU
+		{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
