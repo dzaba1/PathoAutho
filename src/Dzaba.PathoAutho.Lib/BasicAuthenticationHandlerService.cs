@@ -8,25 +8,32 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
 {
     private readonly IUserService userService;
     private readonly ILoginService loginService;
+    private readonly IClaimsService claimsService;
 
     public BasicAuthenticationHandlerService(IUserService userService,
-            ILoginService loginService)
+            ILoginService loginService,
+            IClaimsService claimsService)
     {
         ArgumentNullException.ThrowIfNull(userService, nameof(userService));
         ArgumentNullException.ThrowIfNull(loginService, nameof(loginService));
+        ArgumentNullException.ThrowIfNull(claimsService, nameof(claimsService));
 
         this.userService = userService;
         this.loginService = loginService;
+        this.claimsService = claimsService;
     }
 
-    public Task AddClaimsAsync(BasicAuthenticationCredentials credentials, ICollection<Claim> claims, object context)
+    public async Task AddClaimsAsync(BasicAuthenticationCredentials credentials, ICollection<Claim> claims, object context)
     {
         var pathoIdentity = (PathoIdentityUser)context;
 
         claims.Add(new Claim("UserId", pathoIdentity.Id, ClaimValueTypes.String));
         claims.Add(new Claim(ClaimTypes.Email, pathoIdentity.Email, ClaimValueTypes.Email));
 
-        return Task.CompletedTask;
+        await foreach (var role in claimsService.GetIdentityRolesAsync(pathoIdentity).ConfigureAwait(false))
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
     }
 
     public async Task<CheckPasswordResult> CheckPasswordAsync(BasicAuthenticationCredentials credentials)

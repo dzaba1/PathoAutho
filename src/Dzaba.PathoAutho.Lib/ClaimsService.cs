@@ -1,5 +1,6 @@
 ﻿using Dzaba.PathoAutho.Contracts;
 using Dzaba.PathoAutho.Lib.Model;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -15,21 +16,26 @@ public interface IClaimsService
     Task AssignUserToRoleAsync(string userId, int roleId);
     Task AssignUserToPermissionAsync(string userId, int permissionId);
     Task<Guid> NewApplicationAsync(string appName);
+    IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user);
 }
 
 internal sealed class ClaimsService : IClaimsService
 {
     private readonly AppDbContext dbContext;
     private readonly ILogger<ClaimsService> logger;
+    private readonly UserManager<PathoIdentityUser> userManager;
 
     public ClaimsService(AppDbContext dbContext,
-        ILogger<ClaimsService> logger)
+        ILogger<ClaimsService> logger,
+        UserManager<PathoIdentityUser> userManager)
     {
         ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
         ArgumentNullException.ThrowIfNull(logger, nameof(logger));
+        ArgumentNullException.ThrowIfNull(userManager, nameof(userManager));
 
         this.dbContext = dbContext;
         this.logger = logger;
+        this.userManager = userManager;
     }
 
     public async Task AssignUserToPermissionAsync(string userId, int permissionId)
@@ -101,6 +107,17 @@ internal sealed class ClaimsService : IClaimsService
         }
 
         return await GetAppClaimsModelForUserAsync(userId, app).ConfigureAwait(false);
+    }
+
+    public async IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user)
+    {
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
+
+        var list = await userManager.GetRolesAsync(user).ConfigureAwait(false);
+        foreach (var item in list)
+        {
+            yield return item;
+        }
     }
 
     public async Task<Guid> NewApplicationAsync(string appName)
