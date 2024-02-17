@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using System.Net;
 
 namespace Dzaba.PathoAutho.IntegrationTests;
 
@@ -56,5 +57,96 @@ public class ClaimsServiceTest : IocTestFixture
         model[0].Permissions[0].Name.Should().Be("Permission1");
         model[0].Permissions[1].Id.Should().Be(permission2Id);
         model[0].Permissions[1].Name.Should().Be("Permission2");
+    }
+
+    [Test]
+    public async Task NewApplicationAsync_WhenTheAppExists_ThenException()
+    {
+        var sut = CreateSut();
+
+        await sut.NewApplicationAsync("App1").ConfigureAwait(false);
+
+        var ex = await this.Awaiting(_ => sut.NewApplicationAsync("App1"))
+            .Should().ThrowAsync<HttpResponseException>()
+            .ConfigureAwait(false);
+        ex.Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task NewRoleAsync_WhenTheSameButDifferentApp_ThenItWorks()
+    {
+        var sut = CreateSut();
+
+        var app1 = await sut.NewApplicationAsync("App1").ConfigureAwait(false);
+        var app2 = await sut.NewApplicationAsync("App2").ConfigureAwait(false);
+
+        await sut.NewRoleAsync(app1, "Role").ConfigureAwait(false);
+        await sut.NewRoleAsync(app2, "Role").ConfigureAwait(false);
+    }
+
+    [Test]
+    public async Task NewPermissionAsync_WhenTheSameButDifferentApp_ThenItWorks()
+    {
+        var sut = CreateSut();
+
+        var app1 = await sut.NewApplicationAsync("App1").ConfigureAwait(false);
+        var app2 = await sut.NewApplicationAsync("App2").ConfigureAwait(false);
+
+        await sut.NewPermissionAsync(app1, "Permission").ConfigureAwait(false);
+        await sut.NewPermissionAsync(app2, "Permission").ConfigureAwait(false);
+    }
+
+    [Test]
+    public async Task NewRoleAsync_WhenTheSameAndSameApp_ThenError()
+    {
+        var sut = CreateSut();
+
+        var app1 = await sut.NewApplicationAsync("App1").ConfigureAwait(false);
+
+        await sut.NewRoleAsync(app1, "Role").ConfigureAwait(false);
+        var ex = await this.Invoking(_ => sut.NewRoleAsync(app1, "Role"))
+            .Should().ThrowAsync<HttpResponseException>()
+            .ConfigureAwait(false);
+        ex.Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task NewPermissionAsync_WhenTheSameAndSameApp_ThenError()
+    {
+        var sut = CreateSut();
+
+        var app1 = await sut.NewApplicationAsync("App1").ConfigureAwait(false);
+
+        await sut.NewPermissionAsync(app1, "Permission").ConfigureAwait(false);
+        var ex = await this.Invoking(_ => sut.NewPermissionAsync(app1, "Permission"))
+            .Should().ThrowAsync<HttpResponseException>()
+            .ConfigureAwait(false);
+        ex.Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task AssignUserToRoleAsync_WhenCalledTwice_ThenNothingHappens()
+    {
+        var sut = CreateSut();
+
+        var app = await sut.NewApplicationAsync("App").ConfigureAwait(false);
+        var user = await AddUserAsync().ConfigureAwait(false);
+        var role = await sut.NewRoleAsync(app, "Role").ConfigureAwait(false);
+
+        await sut.AssignUserToRoleAsync(user.Id, role).ConfigureAwait(false);
+        await sut.AssignUserToRoleAsync(user.Id, role).ConfigureAwait(false);
+    }
+
+    [Test]
+    public async Task AssignUserToPermissionAsync_WhenCalledTwice_ThenNothingHappens()
+    {
+        var sut = CreateSut();
+
+        var app = await sut.NewApplicationAsync("App").ConfigureAwait(false);
+        var user = await AddUserAsync().ConfigureAwait(false);
+        var permission = await sut.NewPermissionAsync(app, "Permission").ConfigureAwait(false);
+
+        await sut.AssignUserToPermissionAsync(user.Id, permission).ConfigureAwait(false);
+        await sut.AssignUserToPermissionAsync(user.Id, permission).ConfigureAwait(false);
     }
 }
