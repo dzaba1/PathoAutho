@@ -16,7 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.BasicAuthentication", "src\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj", "{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.BasicAuthentication", "src\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj", "{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.PathoAutho.Lib.Tests", "src\Dzaba.PathoAutho.Lib.Tests\Dzaba.PathoAutho.Lib.Tests.csproj", "{59B40190-5734-4DA2-B5B6-77BB7C4C79A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +46,10 @@ Global
 		{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59B40190-5734-4DA2-B5B6-77BB7C4C79A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59B40190-5734-4DA2-B5B6-77BB7C4C79A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59B40190-5734-4DA2-B5B6-77BB7C4C79A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59B40190-5734-4DA2-B5B6-77BB7C4C79A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

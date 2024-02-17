@@ -19,4 +19,11 @@
     <ProjectReference Include="..\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj" />
     <ProjectReference Include="..\Dzaba.PathoAutho.Contracts\Dzaba.PathoAutho.Contracts.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>Dzaba.PathoAutho.Lib.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>
