@@ -15,7 +15,7 @@ public class IocTestFixture
     protected IServiceProvider Container => container;
 
     [SetUp]
-    public void SetupContainer()
+    public async Task SetupContainerAsync()
     {
         var services = new ServiceCollection();
         services.RegisterDzabaPathoAuthoLib(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()));
@@ -28,12 +28,7 @@ public class IocTestFixture
 
         container = services.BuildServiceProvider();
 
-        InitDb();
-    }
-
-    private void InitDb()
-    {
-        Container.GetRequiredService<AppDbContext>().Database.EnsureCreated();
+        await Container.GetRequiredService<IDbInit>().InitAsync().ConfigureAwait(false);
     }
 
     [TearDown]
