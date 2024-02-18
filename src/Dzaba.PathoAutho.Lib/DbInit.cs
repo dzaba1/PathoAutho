@@ -12,22 +12,22 @@ internal sealed class DbInit : IDbInit
     private readonly AppDbContext dbContext;
     private readonly RoleManager<IdentityRole> roleManager;
     private readonly IUserService userService;
-    private readonly IClaimsService claimsService;
+    private readonly IRoleService rolesService;
 
     public DbInit(AppDbContext dbContext,
         RoleManager<IdentityRole> roleManager,
         IUserService userService,
-        IClaimsService claimsService)
+        IRoleService rolesService)
     {
         ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
         ArgumentNullException.ThrowIfNull(roleManager, nameof(roleManager));
         ArgumentNullException.ThrowIfNull(userService, nameof(userService));
-        ArgumentNullException.ThrowIfNull(claimsService, nameof(claimsService));
+        ArgumentNullException.ThrowIfNull(rolesService, nameof(rolesService));
 
         this.dbContext = dbContext;
         this.roleManager = roleManager;
         this.userService = userService;
-        this.claimsService = claimsService;
+        this.rolesService = rolesService;
     }
 
     public async Task InitAsync()
@@ -45,7 +45,7 @@ internal sealed class DbInit : IDbInit
             ConfirmPassword = "Password1!"
         }).ConfigureAwait(false);
 
-        await claimsService.AssignUserToIdentiyRoleAsync(user, RoleNames.SuperAdmin)
+        await rolesService.AssignUserToIdentiyRoleAsync(user, RoleNames.SuperAdmin)
             .ConfigureAwait(false);
     }
 }

@@ -55,4 +55,9 @@ public class IocTestFixture
     {
         return Container.GetRequiredService<IApplicationService>();
     }
+
+    protected IRoleService GetRolesService()
+    {
+        return Container.GetRequiredService<IRoleService>();
+    }
 }

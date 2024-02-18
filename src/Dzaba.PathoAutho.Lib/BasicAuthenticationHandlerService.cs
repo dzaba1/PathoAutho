@@ -8,19 +8,19 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
 {
     private readonly IUserService userService;
     private readonly ILoginService loginService;
-    private readonly IClaimsService claimsService;
+    private readonly IRoleService rolesService;
 
     public BasicAuthenticationHandlerService(IUserService userService,
             ILoginService loginService,
-            IClaimsService claimsService)
+            IRoleService rolesService)
     {
         ArgumentNullException.ThrowIfNull(userService, nameof(userService));
         ArgumentNullException.ThrowIfNull(loginService, nameof(loginService));
-        ArgumentNullException.ThrowIfNull(claimsService, nameof(claimsService));
+        ArgumentNullException.ThrowIfNull(rolesService, nameof(rolesService));
 
         this.userService = userService;
         this.loginService = loginService;
-        this.claimsService = claimsService;
+        this.rolesService = rolesService;
     }
 
     public async Task AddClaimsAsync(BasicAuthenticationCredentials credentials, ICollection<Claim> claims, object context)
@@ -30,7 +30,7 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
         claims.Add(new Claim("UserId", pathoIdentity.Id, ClaimValueTypes.String));
         claims.Add(new Claim(ClaimTypes.Email, pathoIdentity.Email, ClaimValueTypes.Email));
 
-        await foreach (var role in claimsService.GetIdentityRolesAsync(pathoIdentity).ConfigureAwait(false))
+        await foreach (var role in rolesService.GetIdentityRolesAsync(pathoIdentity).ConfigureAwait(false))
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
         }

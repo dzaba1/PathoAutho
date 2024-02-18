@@ -98,7 +98,7 @@ public class BasicAuthenticationHandlerServiceTests
         };
         var claims = new List<Claim>();
 
-        fixture.FreezeMock<IClaimsService>()
+        fixture.FreezeMock<IRoleService>()
             .Setup(x => x.GetIdentityRolesAsync(user))
             .Returns(new[] { "SuperUser" }.ToAsyncEnumerable());
 

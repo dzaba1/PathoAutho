@@ -20,23 +20,24 @@ public class ClaimsServiceTest : IocTestFixture
         var user = await AddUserAsync().ConfigureAwait(false);
 
         var appService = GetApplicationService();
+        var rolesSevice = GetRolesService();
         var sut = CreateSut();
 
         var app1Id = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
         var app2Id = await appService.NewApplicationAsync("App2").ConfigureAwait(false);
 
-        var role1Id = await sut.NewRoleAsync(app1Id, "Role1").ConfigureAwait(false);
-        await sut.NewRoleAsync(app2Id, "Role1").ConfigureAwait(false);
-        var role2Id = await sut.NewRoleAsync(app1Id, "Role2").ConfigureAwait(false);
-        await sut.NewRoleAsync(app2Id, "Role2").ConfigureAwait(false);
+        var role1Id = await rolesSevice.NewRoleAsync(app1Id, "Role1").ConfigureAwait(false);
+        await rolesSevice.NewRoleAsync(app2Id, "Role1").ConfigureAwait(false);
+        var role2Id = await rolesSevice.NewRoleAsync(app1Id, "Role2").ConfigureAwait(false);
+        await rolesSevice.NewRoleAsync(app2Id, "Role2").ConfigureAwait(false);
 
         var permission1Id = await sut.NewPermissionAsync(app1Id, "Permission1").ConfigureAwait(false);
         await sut.NewPermissionAsync(app2Id, "Permission1").ConfigureAwait(false);
         var permission2Id = await sut.NewPermissionAsync(app1Id, "Permission2").ConfigureAwait(false);
         await sut.NewPermissionAsync(app2Id, "Permission2").ConfigureAwait(false);
 
-        await sut.AssignUserToRoleAsync(user.Id, role1Id).ConfigureAwait(false);
-        await sut.AssignUserToRoleAsync(user.Id, role2Id).ConfigureAwait(false);
+        await rolesSevice.AssignUserToRoleAsync(user.Id, role1Id).ConfigureAwait(false);
+        await rolesSevice.AssignUserToRoleAsync(user.Id, role2Id).ConfigureAwait(false);
 
         await sut.AssignUserToPermissionAsync(user.Id, permission1Id).ConfigureAwait(false);
         await sut.AssignUserToPermissionAsync(user.Id, permission2Id).ConfigureAwait(false);
@@ -61,19 +62,6 @@ public class ClaimsServiceTest : IocTestFixture
     }
 
     [Test]
-    public async Task NewRoleAsync_WhenTheSameButDifferentApp_ThenItWorks()
-    {
-        var appService = GetApplicationService();
-        var sut = CreateSut();
-
-        var app1 = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
-        var app2 = await appService.NewApplicationAsync("App2").ConfigureAwait(false);
-
-        await sut.NewRoleAsync(app1, "Role").ConfigureAwait(false);
-        await sut.NewRoleAsync(app2, "Role").ConfigureAwait(false);
-    }
-
-    [Test]
     public async Task NewPermissionAsync_WhenTheSameButDifferentApp_ThenItWorks()
     {
         var appService = GetApplicationService();
@@ -84,21 +72,6 @@ public class ClaimsServiceTest : IocTestFixture
 
         await sut.NewPermissionAsync(app1, "Permission").ConfigureAwait(false);
         await sut.NewPermissionAsync(app2, "Permission").ConfigureAwait(false);
-    }
-
-    [Test]
-    public async Task NewRoleAsync_WhenTheSameAndSameApp_ThenError()
-    {
-        var appService = GetApplicationService();
-        var sut = CreateSut();
-
-        var app1 = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
-
-        await sut.NewRoleAsync(app1, "Role").ConfigureAwait(false);
-        var ex = await this.Invoking(_ => sut.NewRoleAsync(app1, "Role"))
-            .Should().ThrowAsync<HttpResponseException>()
-            .ConfigureAwait(false);
-        ex.Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Test]
@@ -114,20 +87,6 @@ public class ClaimsServiceTest : IocTestFixture
             .Should().ThrowAsync<HttpResponseException>()
             .ConfigureAwait(false);
         ex.Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    public async Task AssignUserToRoleAsync_WhenCalledTwice_ThenNothingHappens()
-    {
-        var appService = GetApplicationService();
-        var sut = CreateSut();
-
-        var app = await appService.NewApplicationAsync("App").ConfigureAwait(false);
-        var user = await AddUserAsync().ConfigureAwait(false);
-        var role = await sut.NewRoleAsync(app, "Role").ConfigureAwait(false);
-
-        await sut.AssignUserToRoleAsync(user.Id, role).ConfigureAwait(false);
-        await sut.AssignUserToRoleAsync(user.Id, role).ConfigureAwait(false);
     }
 
     [Test]

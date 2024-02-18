@@ -10,13 +10,9 @@ namespace Dzaba.PathoAutho.Lib;
 public interface IClaimsService
 {
     IAsyncEnumerable<AppClaims> GetAppClaimsModelForUserAsync(string userId);
-    Task<AppClaims> GetAppClaimsModelForUserAsync(string userId, Guid appId);
-    Task<int> NewRoleAsync(Guid appId, string roleName);
-    Task<int> NewPermissionAsync(Guid appId, string permissionName);
-    Task AssignUserToRoleAsync(string userId, int roleId);
+    Task<AppClaims> GetAppClaimsModelForUserAsync(string userId, Guid appId);  
+    Task<int> NewPermissionAsync(Guid appId, string permissionName);  
     Task AssignUserToPermissionAsync(string userId, int permissionId);
-    IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user);
-    Task AssignUserToIdentiyRoleAsync(PathoIdentityUser user, string role);
 }
 
 internal sealed class ClaimsService : IClaimsService
@@ -36,17 +32,6 @@ internal sealed class ClaimsService : IClaimsService
         this.dbContext = dbContext;
         this.logger = logger;
         this.userManager = userManager;
-    }
-
-    public async Task AssignUserToIdentiyRoleAsync(PathoIdentityUser user, string role)
-    {
-        ArgumentNullException.ThrowIfNull(user, nameof(user));
-        ArgumentException.ThrowIfNullOrWhiteSpace(role, nameof(role));
-
-        var result = await userManager.AddToRoleAsync(user, role);
-        result.EnsureSuccess();
-
-        logger.LogInformation("Assigned {UserName} to identity role {IdentityRole}", user.UserName, role);
     }
 
     public async Task AssignUserToPermissionAsync(string userId, int permissionId)
@@ -69,28 +54,6 @@ internal sealed class ClaimsService : IClaimsService
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
         logger.LogInformation("Assigned user with ID {UserId} to permission with ID {PermissionId}", userId, permissionId);
-    }
-
-    public async Task AssignUserToRoleAsync(string userId, int roleId)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(userId, nameof(userId));
-
-        var exists = await dbContext.PathoUserRoles.AnyAsync(u => u.UserId == userId && u.RoleId == roleId)
-            .ConfigureAwait(false);
-        if (exists)
-        {
-            return;
-        }
-
-        var entity = new PathoUserRole
-        {
-            RoleId = roleId,
-            UserId = userId,
-        };
-        dbContext.PathoUserRoles.Add(entity);
-        await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        logger.LogInformation("Assigned user with ID {UserId} to role with ID {RoleId}", userId, roleId);
     }
 
     public async IAsyncEnumerable<AppClaims> GetAppClaimsModelForUserAsync(string userId)
@@ -120,17 +83,6 @@ internal sealed class ClaimsService : IClaimsService
         return await GetAppClaimsModelForUserAsync(userId, app).ConfigureAwait(false);
     }
 
-    public async IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user)
-    {
-        ArgumentNullException.ThrowIfNull(user, nameof(user));
-
-        var list = await userManager.GetRolesAsync(user).ConfigureAwait(false);
-        foreach (var item in list)
-        {
-            yield return item;
-        }
-    }
-
     public async Task<int> NewPermissionAsync(Guid appId, string permissionName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(permissionName, nameof(permissionName));
@@ -153,32 +105,6 @@ internal sealed class ClaimsService : IClaimsService
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
         logger.LogInformation("Created a new permission {PermissionName} for application with ID {AppId}", permissionName, appId);
-
-        return entity.Id;
-    }
-
-    public async Task<int> NewRoleAsync(Guid appId, string roleName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(roleName, nameof(roleName));
-
-        var exist = await dbContext.PathoRoles.AnyAsync(p => p.Name == roleName && p.ApplicationId == appId)
-            .ConfigureAwait(false);
-
-        if (exist)
-        {
-            throw new HttpResponseException(HttpStatusCode.BadRequest, $"Role {roleName} for application with ID {appId} already exists.");
-        }
-
-        var entity = new PathoRole
-        {
-            ApplicationId = appId,
-            Name = roleName
-        };
-
-        dbContext.PathoRoles.Add(entity);
-        await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        logger.LogInformation("Created a new role {RoleName} for application with ID {AppId}", roleName, appId);
 
         return entity.Id;
     }
