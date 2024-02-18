@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Dzaba.PathoAutho.Contracts;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,5 +26,14 @@ public class Application
     {
         builder.HasIndex(p => p.Name)
             .IsUnique();
+    }
+
+    public NamedEntity<Guid> ToModel()
+    {
+        return new NamedEntity<Guid>
+        {
+            Id = Id,
+            Name = Name
+        };
     }
 }

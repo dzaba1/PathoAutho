@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using Dzaba.PathoAutho.Contracts;
 
 namespace Dzaba.PathoAutho.Lib.Model;
 
@@ -28,5 +29,14 @@ public class Permission
             .HasForeignKey(p => p.ApplicationId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    public NamedEntity<int> ToModel()
+    {
+        return new NamedEntity<int>
+        {
+            Id = Id,
+            Name = Name
+        };
     }
 }

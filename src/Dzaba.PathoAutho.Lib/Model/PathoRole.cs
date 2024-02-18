@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Dzaba.PathoAutho.Contracts;
 
 namespace Dzaba.PathoAutho.Lib.Model;
 
@@ -28,5 +29,14 @@ public class PathoRole
             .HasForeignKey(p => p.ApplicationId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    public NamedEntity<int> ToModel()
+    {
+        return new NamedEntity<int>
+        {
+            Id = Id,
+            Name = Name,
+        };
     }
 }

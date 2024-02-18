@@ -63,7 +63,7 @@ internal sealed class ClaimsService : IClaimsService
                          where ur.UserId == userId && r.ApplicationId == app.Id
                          select r;
         var roles = await rolesQuery.ToArrayAsync().ConfigureAwait(false);
-        var rolesModel = roles.Select(r => new ClaimBase
+        var rolesModel = roles.Select(r => new NamedEntity<int>
         {
             Id = r.Id,
             Name = r.Name
@@ -74,7 +74,7 @@ internal sealed class ClaimsService : IClaimsService
                                where up.UserId == userId && p.ApplicationId == app.Id
                                select p;
         var permissions = await permissionsQuery.ToArrayAsync().ConfigureAwait(false);
-        var permissionsModel = permissions.Select(r => new ClaimBase
+        var permissionsModel = permissions.Select(r => new NamedEntity<int>
         {
             Id = r.Id,
             Name = r.Name
@@ -84,7 +84,7 @@ internal sealed class ClaimsService : IClaimsService
         {
             return new AppClaims
             {
-                Application = new Contracts.Application
+                Application = new NamedEntity<Guid>
                 {
                     Id = app.Id,
                     Name = app.Name
