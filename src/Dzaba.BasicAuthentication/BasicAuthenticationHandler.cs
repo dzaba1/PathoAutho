@@ -1,20 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Dzaba.BasicAuthentication;
 
-internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
+internal sealed class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
+    public static readonly string FailReasonKeyName = "FailReason";
+
     private readonly ILogger<BasicAuthenticationHandler> logger;
     private readonly IBasicAuthenticationHandlerService handlerService;
-    private HttpContext httpContext;
+    private string failReason;
 
-    public BasicAuthenticationHandler(ILogger<BasicAuthenticationHandler> logger,
-        IBasicAuthenticationHandlerService handlerService)
+    public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory loggerFactory,
+        UrlEncoder encoder,
+        IBasicAuthenticationHandlerService handlerService,
+        ILogger<BasicAuthenticationHandler> logger)
+        : base(options, loggerFactory, encoder)
     {
         ArgumentNullException.ThrowIfNull(logger, nameof(logger));
         ArgumentNullException.ThrowIfNull(handlerService, nameof(handlerService));
@@ -23,21 +31,29 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
         this.handlerService = handlerService;
     }
 
-    public async Task<AuthenticateResult> AuthenticateAsync()
+    private AuthenticateResult Fail(string msg)
     {
-        if (!httpContext.Request.Headers.TryGetValue("Authorization", out var authorizationHeaderRaw))
+        failReason = msg;
+        return AuthenticateResult.Fail(msg);
+    }
+
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        failReason = null;
+
+        if (!Request.Headers.TryGetValue("Authorization", out var authorizationHeaderRaw))
         {
-            return AuthenticateResult.Fail("Missing Authorization header.");
+            return Fail("Missing Authorization header.");
         }
 
         if (!AuthenticationHeaderValue.TryParse(authorizationHeaderRaw, out var authorizationHeader))
         {
-            return AuthenticateResult.Fail("Error parsing Authorization header value.");
+            return Fail("Error parsing Authorization header value.");
         }
 
         if (!string.Equals(authorizationHeader.Scheme, "Basic", StringComparison.OrdinalIgnoreCase))
         {
-            return AuthenticateResult.Fail("Invalid Authorization header value.");
+            return Fail("Invalid Authorization header value.");
         }
 
         try
@@ -46,19 +62,19 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
             var credentialsArray = Encoding.UTF8.GetString(credentialBytes).Split(':');
             var credentials = new BasicAuthenticationCredentials(credentialsArray[0], credentialsArray[1]);
 
-            var checkPasswordResult = await handlerService.CheckPasswordAsync(credentials, httpContext).ConfigureAwait(false);
+            var checkPasswordResult = await handlerService.CheckPasswordAsync(credentials, Context).ConfigureAwait(false);
 
             if (!checkPasswordResult.Success)
             {
-                return AuthenticateResult.Fail("Username or password is invalid");
+                return Fail("Username or password is invalid");
             }
 
             var claims = new List<Claim>(1)
-                {
-                    new Claim(ClaimTypes.Name, credentials.UserName, ClaimValueTypes.String),
-                };
+                    {
+                        new Claim(ClaimTypes.Name, credentials.UserName, ClaimValueTypes.String),
+                    };
 
-            await handlerService.AddClaimsAsync(credentials, httpContext, claims, checkPasswordResult.Context)
+            await handlerService.AddClaimsAsync(credentials, Context, claims, checkPasswordResult.Context)
                 .ConfigureAwait(false);
 
             var identity = new ClaimsIdentity(claims, Constants.AuthenticationName);
@@ -69,25 +85,18 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Error in Basic authentication.");
-            return AuthenticateResult.Fail("Invalid Authorization header value.");
+            return Fail("Invalid Authorization header value.");
         }
     }
 
-    public Task ChallengeAsync(AuthenticationProperties properties)
+    protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
     {
-        return Task.CompletedTask;
-    }
+        await base.HandleChallengeAsync(properties).ConfigureAwait(false);
 
-    public Task ForbidAsync(AuthenticationProperties properties)
-    {
-        return Task.CompletedTask;
-    }
-
-    public Task InitializeAsync(AuthenticationScheme scheme, HttpContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context, nameof(context));
-
-        this.httpContext = context;
-        return Task.CompletedTask;
+        if (Response.StatusCode == StatusCodes.Status401Unauthorized &&
+            !string.IsNullOrWhiteSpace(failReason))
+        {
+            await Response.WriteAsync(failReason).ConfigureAwait(false);
+        }
     }
 }
