@@ -13,10 +13,13 @@ namespace Dzaba.PathoAutho.Controllers;
 public class ApplicationController : ControllerBase
 {
     private readonly IApplicationService appService;
+    private readonly IRoleService roleService;
 
-    public ApplicationController(IApplicationService appService)
+    public ApplicationController(IApplicationService appService,
+        IRoleService roleService)
     {
         this.appService = appService;
+        this.roleService = roleService;
     }
 
     [HttpPost("{appName}")]
@@ -28,7 +31,7 @@ public class ApplicationController : ControllerBase
     }
 
     [HttpDelete("{appId}")]
-    [Authorize(Roles = RoleNames.SuperAdmin)]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
     public async Task RemoveApplicationAsync(Guid appId)
     {
         await appService.RemoveApplicationAsync(appId)
@@ -37,10 +40,36 @@ public class ApplicationController : ControllerBase
 
     [HttpPut]
     [ValidateModel]
-    [Authorize(Roles = RoleNames.SuperAdmin)]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
     public async Task ChangeApplicationAsync([FromBody, Required] ChangeApplication changeApplication)
     {
         await appService.ChangeNameAsync(changeApplication.Id, changeApplication.NewName)
+            .ConfigureAwait(false);
+    }
+
+    [HttpPost("{appId}/admin/user/{userName}")]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    public async Task SetAdminAsync(Guid appId, string userName)
+    {
+        await roleService.SetApplicationAdminAsync(userName, appId)
+            .ConfigureAwait(false);
+    }
+
+    [HttpDelete("{appId}/admin/user/{userName}")]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    public async Task RevokeAdminAsync(Guid appId, string userName)
+    {
+        await roleService.RevokeApplicationAdminAsync(userName, appId)
+            .ConfigureAwait(false);
+    }
+
+    [HttpGet("{appId}/admin")]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    public async Task<User[]> GetAdminsAsync(Guid appId)
+    {
+        return await roleService.GetAdmins(appId)
+            .Select(u => u.ToModel())
+            .ToArrayAsync()
             .ConfigureAwait(false);
     }
 }

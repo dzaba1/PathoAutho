@@ -149,14 +149,14 @@ public class RolesServiceTests : IocTestFixture
         var app = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
         var user = await AddUserAsync().ConfigureAwait(false);
         
-        await sut.SetApplicationAdminAsync(user.Id, app)
+        await sut.SetApplicationAdminAsync(user.UserName, app)
             .ConfigureAwait(false);
 
         var isAdmin = await sut.IsApplicationAdminAsync(user.Id, app)
             .ConfigureAwait(false);
         isAdmin.Should().BeTrue();
 
-        await sut.RevokeApplicationAdminAsync(user.Id, app).ConfigureAwait(false);
+        await sut.RevokeApplicationAdminAsync(user.UserName, app).ConfigureAwait(false);
         isAdmin = await sut.IsApplicationAdminAsync(user.Id, app)
             .ConfigureAwait(false);
         isAdmin.Should().BeFalse();
@@ -169,7 +169,7 @@ public class RolesServiceTests : IocTestFixture
 
         var user = await AddUserAsync().ConfigureAwait(false);
 
-        var ex = await this.Invoking(_ => sut.SetApplicationAdminAsync(user.Id, Guid.NewGuid()))
+        var ex = await this.Invoking(_ => sut.SetApplicationAdminAsync(user.UserName, Guid.NewGuid()))
             .Should().ThrowAsync<HttpResponseException>()
             .ConfigureAwait(false);
 
@@ -198,7 +198,7 @@ public class RolesServiceTests : IocTestFixture
 
         var user = await AddUserAsync().ConfigureAwait(false);
 
-        var ex = await this.Invoking(_ => sut.RevokeApplicationAdminAsync(user.Id, Guid.NewGuid()))
+        var ex = await this.Invoking(_ => sut.RevokeApplicationAdminAsync(user.UserName, Guid.NewGuid()))
             .Should().ThrowAsync<HttpResponseException>()
             .ConfigureAwait(false);
 

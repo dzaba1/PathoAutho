@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Dzaba.PathoAutho.Contracts;
+using Microsoft.AspNetCore.Identity;
 
 namespace Dzaba.PathoAutho.Lib.Model;
 
@@ -14,4 +15,14 @@ public class PathoIdentityUser : IdentityUser
     public virtual ICollection<PathoUserRole> PathoRoles { get; set; }
 
     public virtual ICollection<ApplicationAdmin> AdminApplications { get; set; }
+
+    public User ToModel()
+    {
+        return new User
+        {
+            Id = Guid.Parse(Id),
+            Email = Email,
+            Name = UserName
+        };
+    }
 }

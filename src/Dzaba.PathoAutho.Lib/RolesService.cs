@@ -1,4 +1,5 @@
-﻿using Dzaba.PathoAutho.Lib.Model;
+﻿using Dzaba.PathoAutho.Contracts;
+using Dzaba.PathoAutho.Lib.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -19,8 +20,9 @@ public interface IRoleService
     Task AssignUserToIdentiyRoleAsync(PathoIdentityUser user, string role);
     Task RemoveUserFromIdentiyRoleAsync(PathoIdentityUser user, string role);
     Task<bool> IsApplicationAdminAsync(string userId, Guid appId);
-    Task SetApplicationAdminAsync(string userId, Guid appId);
-    Task RevokeApplicationAdminAsync(string userId, Guid appId);
+    Task SetApplicationAdminAsync(string userName, Guid appId);
+    Task RevokeApplicationAdminAsync(string userName, Guid appId);
+    IAsyncEnumerable<PathoIdentityUser> GetAdmins(Guid appId);
 }
 
 internal class RolesService : IRoleService
@@ -73,6 +75,16 @@ internal class RolesService : IRoleService
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
         logger.LogInformation("Assigned user with ID {UserId} to role with ID {RoleId}", userId, roleId);
+    }
+
+    public IAsyncEnumerable<PathoIdentityUser> GetAdmins(Guid appId)
+    {
+        var query = from a in dbContext.ApplicationAdmins
+                    join u in dbContext.Users on a.UserId equals u.Id
+                    where a.ApplicationId == appId
+                    select u;
+
+        return query.AsAsyncEnumerable();
     }
 
     public async IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user)
@@ -202,16 +214,16 @@ internal class RolesService : IRoleService
         logger.LogInformation("Removed user with ID {UserId} from role with ID {RoleId}", userId, roleId);
     }
 
-    public async Task RevokeApplicationAdminAsync(string userId, Guid appId)
+    public async Task RevokeApplicationAdminAsync(string userName, Guid appId)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(userId, nameof(userId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName, nameof(userName));
 
-        var userExists = await dbContext.Users.AnyAsync(u => u.Id == userId)
+        var user = await userManager.FindByNameAsync(userName)
             .ConfigureAwait(false);
 
-        if (!userExists)
+        if (user == null)
         {
-            throw new HttpResponseException(HttpStatusCode.BadRequest, $"User with ID {userId} doesn't exist.");
+            throw new HttpResponseException(HttpStatusCode.BadRequest, $"User {userName} doesn't exist.");
         }
 
         var appExists = await dbContext.Applications.AnyAsync(a => a.Id == appId)
@@ -222,7 +234,7 @@ internal class RolesService : IRoleService
             throw new HttpResponseException(HttpStatusCode.BadRequest, $"Application with ID {appId} doesn't exist.");
         }
 
-        var entity = await dbContext.ApplicationAdmins.FirstOrDefaultAsync(a => a.UserId == userId && a.ApplicationId == appId)
+        var entity = await dbContext.ApplicationAdmins.FirstOrDefaultAsync(a => a.UserId == user.Id && a.ApplicationId == appId)
            .ConfigureAwait(false);
 
         if (entity == null)
@@ -230,22 +242,23 @@ internal class RolesService : IRoleService
             return;
         }
 
+        var appName = entity.Application.Name;
         dbContext.ApplicationAdmins.Remove(entity);
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
-        logger.LogInformation("Revoked user with ID {UserId} as admin of application with ID {AppId}", userId, appId);
+        logger.LogInformation("Revoked user {UserName} as admin of application with {AppName}", userName, appName);
     }
 
-    public async Task SetApplicationAdminAsync(string userId, Guid appId)
+    public async Task SetApplicationAdminAsync(string userName, Guid appId)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(userId, nameof(userId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName, nameof(userName));
 
-        var userExists = await dbContext.Users.AnyAsync(u => u.Id == userId)
+        var user = await userManager.FindByNameAsync(userName)
             .ConfigureAwait(false);
 
-        if (!userExists)
+        if (user == null)
         {
-            throw new HttpResponseException(HttpStatusCode.BadRequest, $"User with ID {userId} doesn't exist.");
+            throw new HttpResponseException(HttpStatusCode.BadRequest, $"User {userName} doesn't exist.");
         }
 
         var appExists = await dbContext.Applications.AnyAsync(a => a.Id == appId)
@@ -256,7 +269,7 @@ internal class RolesService : IRoleService
             throw new HttpResponseException(HttpStatusCode.BadRequest, $"Application with ID {appId} doesn't exist.");
         }
 
-        var exists = await dbContext.ApplicationAdmins.AnyAsync(a => a.UserId == userId && a.ApplicationId == appId)
+        var exists = await dbContext.ApplicationAdmins.AnyAsync(a => a.UserId == user.Id && a.ApplicationId == appId)
            .ConfigureAwait(false);
 
         if (exists)
@@ -267,12 +280,12 @@ internal class RolesService : IRoleService
         var entity = new ApplicationAdmin
         {
             ApplicationId = appId,
-            UserId = userId
+            UserId = user.Id
         };
 
         dbContext.ApplicationAdmins.Add(entity);
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
-        logger.LogInformation("Set user with ID {UserId} as admin of application with ID {AppId}", userId, appId);
+        logger.LogInformation("Set user {UserName} as admin of application {AppName}", userName, entity.Application.Name);
     }
 }
