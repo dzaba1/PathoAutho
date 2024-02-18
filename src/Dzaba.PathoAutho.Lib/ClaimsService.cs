@@ -17,6 +17,7 @@ public interface IClaimsService
     Task AssignUserToPermissionAsync(string userId, int permissionId);
     Task<Guid> NewApplicationAsync(string appName);
     IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user);
+    Task AssignUserToIdentiyRoleAsync(PathoIdentityUser user, string role);
 }
 
 internal sealed class ClaimsService : IClaimsService
@@ -36,6 +37,17 @@ internal sealed class ClaimsService : IClaimsService
         this.dbContext = dbContext;
         this.logger = logger;
         this.userManager = userManager;
+    }
+
+    public async Task AssignUserToIdentiyRoleAsync(PathoIdentityUser user, string role)
+    {
+        ArgumentNullException.ThrowIfNull(user, nameof(user));
+        ArgumentException.ThrowIfNullOrWhiteSpace(role, nameof(role));
+
+        var result = await userManager.AddToRoleAsync(user, role);
+        result.EnsureSuccess();
+
+        logger.LogInformation("Assigned {UserName} to identity role {IdentityRole}", user.UserName, role);
     }
 
     public async Task AssignUserToPermissionAsync(string userId, int permissionId)

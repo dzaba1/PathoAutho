@@ -7,7 +7,7 @@ namespace Dzaba.PathoAutho.Lib;
 
 public interface IUserService
 {
-    Task RegisterAsync(RegisterUser newUser);
+    Task<PathoIdentityUser> RegisterAsync(RegisterUser newUser);
     Task<PathoIdentityUser> FindUserByNameAsync(string userName);
 }
 
@@ -35,7 +35,7 @@ internal sealed class UserService : IUserService
         return await userManager.FindByNameAsync(userName).ConfigureAwait(false);
     }
 
-    public async Task RegisterAsync(RegisterUser newUser)
+    public async Task<PathoIdentityUser> RegisterAsync(RegisterUser newUser)
     {
         ArgumentNullException.ThrowIfNull(newUser, nameof(newUser));
 
@@ -52,5 +52,7 @@ internal sealed class UserService : IUserService
         result.EnsureSuccess();
 
         logger.LogInformation("Added a new user with email {Email}", newUser.Email);
+
+        return identity;
     }
 }
