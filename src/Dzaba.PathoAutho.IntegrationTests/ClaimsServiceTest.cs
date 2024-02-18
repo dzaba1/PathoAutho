@@ -21,6 +21,7 @@ public class ClaimsServiceTest : IocTestFixture
 
         var appService = GetApplicationService();
         var rolesSevice = GetRolesService();
+        var permissionService = GetPermisionService();
         var sut = CreateSut();
 
         var app1Id = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
@@ -31,16 +32,16 @@ public class ClaimsServiceTest : IocTestFixture
         var role2Id = await rolesSevice.NewRoleAsync(app1Id, "Role2").ConfigureAwait(false);
         await rolesSevice.NewRoleAsync(app2Id, "Role2").ConfigureAwait(false);
 
-        var permission1Id = await sut.NewPermissionAsync(app1Id, "Permission1").ConfigureAwait(false);
-        await sut.NewPermissionAsync(app2Id, "Permission1").ConfigureAwait(false);
-        var permission2Id = await sut.NewPermissionAsync(app1Id, "Permission2").ConfigureAwait(false);
-        await sut.NewPermissionAsync(app2Id, "Permission2").ConfigureAwait(false);
+        var permission1Id = await permissionService.NewPermissionAsync(app1Id, "Permission1").ConfigureAwait(false);
+        await permissionService.NewPermissionAsync(app2Id, "Permission1").ConfigureAwait(false);
+        var permission2Id = await permissionService.NewPermissionAsync(app1Id, "Permission2").ConfigureAwait(false);
+        await permissionService.NewPermissionAsync(app2Id, "Permission2").ConfigureAwait(false);
 
         await rolesSevice.AssignUserToRoleAsync(user.Id, role1Id).ConfigureAwait(false);
         await rolesSevice.AssignUserToRoleAsync(user.Id, role2Id).ConfigureAwait(false);
 
-        await sut.AssignUserToPermissionAsync(user.Id, permission1Id).ConfigureAwait(false);
-        await sut.AssignUserToPermissionAsync(user.Id, permission2Id).ConfigureAwait(false);
+        await permissionService.AssignUserToPermissionAsync(user.Id, permission1Id).ConfigureAwait(false);
+        await permissionService.AssignUserToPermissionAsync(user.Id, permission2Id).ConfigureAwait(false);
 
         var model = await sut.GetAppClaimsModelForUserAsync(user.Id)
             .ToArrayAsync()
@@ -59,47 +60,5 @@ public class ClaimsServiceTest : IocTestFixture
         model[0].Permissions[0].Name.Should().Be("Permission1");
         model[0].Permissions[1].Id.Should().Be(permission2Id);
         model[0].Permissions[1].Name.Should().Be("Permission2");
-    }
-
-    [Test]
-    public async Task NewPermissionAsync_WhenTheSameButDifferentApp_ThenItWorks()
-    {
-        var appService = GetApplicationService();
-        var sut = CreateSut();
-
-        var app1 = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
-        var app2 = await appService.NewApplicationAsync("App2").ConfigureAwait(false);
-
-        await sut.NewPermissionAsync(app1, "Permission").ConfigureAwait(false);
-        await sut.NewPermissionAsync(app2, "Permission").ConfigureAwait(false);
-    }
-
-    [Test]
-    public async Task NewPermissionAsync_WhenTheSameAndSameApp_ThenError()
-    {
-        var appService = GetApplicationService();
-        var sut = CreateSut();
-
-        var app1 = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
-
-        await sut.NewPermissionAsync(app1, "Permission").ConfigureAwait(false);
-        var ex = await this.Invoking(_ => sut.NewPermissionAsync(app1, "Permission"))
-            .Should().ThrowAsync<HttpResponseException>()
-            .ConfigureAwait(false);
-        ex.Which.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    [Test]
-    public async Task AssignUserToPermissionAsync_WhenCalledTwice_ThenNothingHappens()
-    {
-        var appService = GetApplicationService();
-        var sut = CreateSut();
-
-        var app = await appService.NewApplicationAsync("App").ConfigureAwait(false);
-        var user = await AddUserAsync().ConfigureAwait(false);
-        var permission = await sut.NewPermissionAsync(app, "Permission").ConfigureAwait(false);
-
-        await sut.AssignUserToPermissionAsync(user.Id, permission).ConfigureAwait(false);
-        await sut.AssignUserToPermissionAsync(user.Id, permission).ConfigureAwait(false);
     }
 }

@@ -1,6 +1,4 @@
 ﻿using Dzaba.PathoAutho.Contracts;
-using Dzaba.PathoAutho.Lib.Model;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -11,49 +9,22 @@ public interface IClaimsService
 {
     IAsyncEnumerable<AppClaims> GetAppClaimsModelForUserAsync(string userId);
     Task<AppClaims> GetAppClaimsModelForUserAsync(string userId, Guid appId);  
-    Task<int> NewPermissionAsync(Guid appId, string permissionName);  
-    Task AssignUserToPermissionAsync(string userId, int permissionId);
+    
 }
 
 internal sealed class ClaimsService : IClaimsService
 {
     private readonly AppDbContext dbContext;
     private readonly ILogger<ClaimsService> logger;
-    private readonly UserManager<PathoIdentityUser> userManager;
 
     public ClaimsService(AppDbContext dbContext,
-        ILogger<ClaimsService> logger,
-        UserManager<PathoIdentityUser> userManager)
+        ILogger<ClaimsService> logger)
     {
         ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
         ArgumentNullException.ThrowIfNull(logger, nameof(logger));
-        ArgumentNullException.ThrowIfNull(userManager, nameof(userManager));
 
         this.dbContext = dbContext;
         this.logger = logger;
-        this.userManager = userManager;
-    }
-
-    public async Task AssignUserToPermissionAsync(string userId, int permissionId)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(userId, nameof(userId));
-
-        var exists = await dbContext.UserPermissions.AnyAsync(u => u.UserId == userId && u.PermissionId == permissionId)
-            .ConfigureAwait(false);
-        if (exists)
-        {
-            return;
-        }
-
-        var entity = new UserPermission
-        {
-            PermissionId = permissionId,
-            UserId = userId,
-        };
-        dbContext.UserPermissions.Add(entity);
-        await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        logger.LogInformation("Assigned user with ID {UserId} to permission with ID {PermissionId}", userId, permissionId);
     }
 
     public async IAsyncEnumerable<AppClaims> GetAppClaimsModelForUserAsync(string userId)
@@ -81,32 +52,6 @@ internal sealed class ClaimsService : IClaimsService
         }
 
         return await GetAppClaimsModelForUserAsync(userId, app).ConfigureAwait(false);
-    }
-
-    public async Task<int> NewPermissionAsync(Guid appId, string permissionName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(permissionName, nameof(permissionName));
-
-        var exist = await dbContext.Permissions.AnyAsync(p => p.Name == permissionName && p.ApplicationId == appId)
-            .ConfigureAwait(false);
-
-        if (exist)
-        {
-            throw new HttpResponseException(HttpStatusCode.BadRequest, $"Permission {permissionName} for application with ID {appId} already exists.");
-        }
-
-        var entity = new Permission
-        {
-            ApplicationId = appId,
-            Name = permissionName
-        };
-
-        dbContext.Permissions.Add(entity);
-        await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        logger.LogInformation("Created a new permission {PermissionName} for application with ID {AppId}", permissionName, appId);
-
-        return entity.Id;
     }
 
     private async Task<AppClaims> GetAppClaimsModelForUserAsync(string userId, Model.Application app)

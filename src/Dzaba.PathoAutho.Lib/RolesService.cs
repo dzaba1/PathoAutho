@@ -140,7 +140,7 @@ internal class RolesService : IRoleService
         dbContext.PathoRoles.Remove(role);
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
-        logger.LogInformation("Removed role with ID {RoleName} for application with ID {AppId}", role.Name, role.ApplicationId);
+        logger.LogInformation("Removed role {RoleName} for application with ID {AppId}", role.Name, role.ApplicationId);
     }
 
     public async Task RemoveUserFromIdentiyRoleAsync(PathoIdentityUser user, string role)
