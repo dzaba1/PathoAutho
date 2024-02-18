@@ -15,6 +15,7 @@ public class AppDbContext : IdentityDbContext<PathoIdentityUser>
         base.OnModelCreating(modelBuilder);
 
         Application.Configure(modelBuilder.Entity<Application>());
+        ApplicationAdmin.Configure(modelBuilder.Entity<ApplicationAdmin>());
         Permission.Configure(modelBuilder.Entity<Permission>());
         UserPermission.Configure(modelBuilder.Entity<UserPermission>());
         PathoRole.Configure(modelBuilder.Entity<PathoRole>());
@@ -30,4 +31,6 @@ public class AppDbContext : IdentityDbContext<PathoIdentityUser>
     public DbSet<PathoRole> PathoRoles { get; set; }
 
     public DbSet<PathoUserRole> PathoUserRoles { get; set; }
+
+    public DbSet<ApplicationAdmin> ApplicationAdmins { get; set; }
 }

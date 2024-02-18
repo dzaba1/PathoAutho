@@ -19,6 +19,8 @@ public class Application
 
     public virtual ICollection<PathoRole> Roles { get; set; }
 
+    public virtual ICollection<ApplicationAdmin> Admins { get; set; }
+
     public static void Configure(EntityTypeBuilder<Application> builder)
     {
         builder.HasIndex(p => p.Name)
