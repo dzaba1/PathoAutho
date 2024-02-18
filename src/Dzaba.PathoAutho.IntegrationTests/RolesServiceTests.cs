@@ -139,4 +139,84 @@ public class RolesServiceTests : IocTestFixture
 
         userRoles.Should().BeEmpty();
     }
+
+    [Test]
+    public async Task RevokeApplicationAdminAsync_WhenUserIsAdmin_ThenIsNotAdmin()
+    {
+        var appService = GetApplicationService();
+        var sut = GetRolesService();
+
+        var app = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
+        var user = await AddUserAsync().ConfigureAwait(false);
+        
+        await sut.SetApplicationAdminAsync(user.Id, app)
+            .ConfigureAwait(false);
+
+        var isAdmin = await sut.IsApplicationAdminAsync(user.Id, app)
+            .ConfigureAwait(false);
+        isAdmin.Should().BeTrue();
+
+        await sut.RevokeApplicationAdminAsync(user.Id, app).ConfigureAwait(false);
+        isAdmin = await sut.IsApplicationAdminAsync(user.Id, app)
+            .ConfigureAwait(false);
+        isAdmin.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task SetApplicationAdminAsync_WhenAppDoesnExist_ThenError()
+    {
+        var sut = GetRolesService();
+
+        var user = await AddUserAsync().ConfigureAwait(false);
+
+        var ex = await this.Invoking(_ => sut.SetApplicationAdminAsync(user.Id, Guid.NewGuid()))
+            .Should().ThrowAsync<HttpResponseException>()
+            .ConfigureAwait(false);
+
+        ex.And.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task SetApplicationAdminAsync_WhenUserDoesnExist_ThenError()
+    {
+        var appService = GetApplicationService();
+        var sut = GetRolesService();
+
+        var app = await appService.NewApplicationAsync("App").ConfigureAwait(false);
+
+        var ex = await this.Invoking(_ => sut.SetApplicationAdminAsync(Guid.NewGuid().ToString(), app))
+            .Should().ThrowAsync<HttpResponseException>()
+            .ConfigureAwait(false);
+
+        ex.And.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task RevokeApplicationAdminAsync_WhenAppDoesnExist_ThenError()
+    {
+        var sut = GetRolesService();
+
+        var user = await AddUserAsync().ConfigureAwait(false);
+
+        var ex = await this.Invoking(_ => sut.RevokeApplicationAdminAsync(user.Id, Guid.NewGuid()))
+            .Should().ThrowAsync<HttpResponseException>()
+            .ConfigureAwait(false);
+
+        ex.And.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Test]
+    public async Task RevokeApplicationAdminAsync_WhenUserDoesnExist_ThenError()
+    {
+        var appService = GetApplicationService();
+        var sut = GetRolesService();
+
+        var app = await appService.NewApplicationAsync("App").ConfigureAwait(false);
+
+        var ex = await this.Invoking(_ => sut.RevokeApplicationAdminAsync(Guid.NewGuid().ToString(), app))
+            .Should().ThrowAsync<HttpResponseException>()
+            .ConfigureAwait(false);
+
+        ex.And.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
 }
