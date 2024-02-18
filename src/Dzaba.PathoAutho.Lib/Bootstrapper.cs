@@ -39,6 +39,11 @@ public static class Bootstrapper
         {
             o.AddBasicAuthenticationScheme(true);
         });
+
+        services.AddAuthorization(o =>
+        {
+            o.AddPolicy(PolicyNames.SuperAdmin, p => p.RequireRole(RoleNames.SuperAdmin));
+        });
     }
 
     public static IdentityBuilder AddIdentityServicesOnly<TUser, TRole>(this IServiceCollection services)
