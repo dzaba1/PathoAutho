@@ -100,7 +100,6 @@ public class RolesServiceTests : IocTestFixture
         var appService = GetApplicationService();
         var sut = GetRolesService();
 
-        var app = await appService.NewApplicationAsync("App").ConfigureAwait(false);
         var user = await AddUserAsync().ConfigureAwait(false);
 
         await sut.AssignUserToIdentiyRoleAsync(user, RoleNames.SuperAdmin).ConfigureAwait(false);
@@ -114,6 +113,27 @@ public class RolesServiceTests : IocTestFixture
         await sut.RemoveUserFromIdentiyRoleAsync(user, RoleNames.SuperAdmin).ConfigureAwait(false);
 
         userRoles = await sut.GetIdentityRolesAsync(user)
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        userRoles.Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task RemoveUserFromRoleAsync_WhenUserAssignedToOtherApp_ThenNothing()
+    {
+        var appService = GetApplicationService();
+        var sut = GetRolesService();
+
+        var app1 = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
+        var app2 = await appService.NewApplicationAsync("App2").ConfigureAwait(false);
+        var user = await AddUserAsync().ConfigureAwait(false);
+        var role = await sut.NewRoleAsync(app1, "Role").ConfigureAwait(false);
+        await sut.NewRoleAsync(app2, "Role").ConfigureAwait(false);
+
+        await sut.AssignUserToRoleAsync(user.Id, role).ConfigureAwait(false);
+
+        var userRoles = await sut.GetRolesAsync(user.Id, app2)
             .ToArrayAsync()
             .ConfigureAwait(false);
 

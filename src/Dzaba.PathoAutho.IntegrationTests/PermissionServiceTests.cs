@@ -93,4 +93,25 @@ public class PermissionServiceTests : IocTestFixture
 
         userPermissions.Should().BeEmpty();
     }
+
+    [Test]
+    public async Task RemoveUserFromRoleAsync_WhenUserAssignedToOtherApp_ThenNothing()
+    {
+        var appService = GetApplicationService();
+        var sut = GetPermisionService();
+
+        var app1 = await appService.NewApplicationAsync("App1").ConfigureAwait(false);
+        var app2 = await appService.NewApplicationAsync("App2").ConfigureAwait(false);
+        var user = await AddUserAsync().ConfigureAwait(false);
+        var permission1 = await sut.NewPermissionAsync(app1, "Permission").ConfigureAwait(false);
+        await sut.NewPermissionAsync(app2, "Permission").ConfigureAwait(false);
+
+        await sut.AssignUserToPermissionAsync(user.Id, permission1).ConfigureAwait(false);
+
+        var userPermissions = await sut.GetPermissionsAsync(user.Id, app2)
+            .ToArrayAsync()
+            .ConfigureAwait(false);
+
+        userPermissions.Should().BeEmpty();
+    }
 }

@@ -12,6 +12,7 @@ public interface IPermissionService
     Task AssignUserToPermissionAsync(string userId, int permissionId);
     Task RemoveUserFromPermissionAsync(string userId, int permissionId);
     IAsyncEnumerable<Permission> GetPermissionsAsync(string userId);
+    IAsyncEnumerable<Permission> GetPermissionsAsync(string userId, Guid appId);
     Task<Permission> GetPermissionAsync(int id);
 }
 
@@ -129,5 +130,19 @@ internal sealed class PermissionService : IPermissionService
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
         logger.LogInformation("Removed user with ID {UserId} from permission with ID {PermissionId}", userId, permissionId);
+    }
+
+    public async IAsyncEnumerable<Permission> GetPermissionsAsync(string userId, Guid appId)
+    {
+        var query = from p in dbContext.Permissions
+                    join up in dbContext.UserPermissions on p.Id equals up.PermissionId
+                    where up.UserId == userId && p.ApplicationId == appId
+                    select p;
+
+        var col = query.ToAsyncEnumerable();
+        await foreach (var item in col.ConfigureAwait(false))
+        {
+            yield return item;
+        }
     }
 }

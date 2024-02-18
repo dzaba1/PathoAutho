@@ -14,6 +14,7 @@ public interface IRoleService
     Task<PathoRole> GetRoleAsync(int roleId);
     Task RemoveRoleAsync(int roleId);
     IAsyncEnumerable<PathoRole> GetRolesAsync(string userId);
+    IAsyncEnumerable<PathoRole> GetRolesAsync(string userId, Guid appId);
     IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user);
     Task AssignUserToIdentiyRoleAsync(PathoIdentityUser user, string role);
     Task RemoveUserFromIdentiyRoleAsync(PathoIdentityUser user, string role);
@@ -94,6 +95,20 @@ internal class RolesService : IRoleService
                    join ur in dbContext.PathoUserRoles on r.Id equals ur.RoleId
                    where ur.UserId == userId
                    select r;
+
+        var col = query.ToAsyncEnumerable();
+        await foreach (var item in col.ConfigureAwait(false))
+        {
+            yield return item;
+        }
+    }
+
+    public async IAsyncEnumerable<PathoRole> GetRolesAsync(string userId, Guid appId)
+    {
+        var query = from r in dbContext.PathoRoles
+                    join ur in dbContext.PathoUserRoles on r.Id equals ur.RoleId
+                    where ur.UserId == userId && r.ApplicationId == appId
+                    select r;
 
         var col = query.ToAsyncEnumerable();
         await foreach (var item in col.ConfigureAwait(false))
