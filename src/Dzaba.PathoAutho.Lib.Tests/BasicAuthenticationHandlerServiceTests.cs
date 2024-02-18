@@ -41,7 +41,7 @@ public class BasicAuthenticationHandlerServiceTests
 
         var sut = CreateSut();
 
-        var result = await sut.CheckPasswordAsync(creds).ConfigureAwait(false);
+        var result = await sut.CheckPasswordAsync(creds, null).ConfigureAwait(false);
         result.Success.Should().BeFalse();
         result.Context.Should().BeNull();
     }
@@ -62,7 +62,7 @@ public class BasicAuthenticationHandlerServiceTests
 
         var sut = CreateSut();
 
-        var result = await sut.CheckPasswordAsync(creds).ConfigureAwait(false);
+        var result = await sut.CheckPasswordAsync(creds, null).ConfigureAwait(false);
         result.Success.Should().BeFalse();
         result.Context.Should().Be(user);
     }
@@ -83,7 +83,7 @@ public class BasicAuthenticationHandlerServiceTests
 
         var sut = CreateSut();
 
-        var result = await sut.CheckPasswordAsync(creds).ConfigureAwait(false);
+        var result = await sut.CheckPasswordAsync(creds, null).ConfigureAwait(false);
         result.Success.Should().BeTrue();
         result.Context.Should().Be(user);
     }
@@ -104,7 +104,7 @@ public class BasicAuthenticationHandlerServiceTests
 
         var sut = CreateSut();
 
-        await sut.AddClaimsAsync(creds, claims, user).ConfigureAwait(false);
+        await sut.AddClaimsAsync(creds, null, claims, user).ConfigureAwait(false);
 
         claims.Should().HaveCount(3);
         claims[0].Value.Should().Be(user.Id);

@@ -11,7 +11,7 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
 {
     private readonly ILogger<BasicAuthenticationHandler> logger;
     private readonly IBasicAuthenticationHandlerService handlerService;
-    private HttpContext context;
+    private HttpContext httpContext;
 
     public BasicAuthenticationHandler(ILogger<BasicAuthenticationHandler> logger,
         IBasicAuthenticationHandlerService handlerService)
@@ -25,7 +25,7 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
 
     public async Task<AuthenticateResult> AuthenticateAsync()
     {
-        if (!context.Request.Headers.TryGetValue("Authorization", out var authorizationHeaderRaw))
+        if (!httpContext.Request.Headers.TryGetValue("Authorization", out var authorizationHeaderRaw))
         {
             return AuthenticateResult.Fail("Missing Authorization header.");
         }
@@ -46,7 +46,7 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
             var credentialsArray = Encoding.UTF8.GetString(credentialBytes).Split(':');
             var credentials = new BasicAuthenticationCredentials(credentialsArray[0], credentialsArray[1]);
 
-            var checkPasswordResult = await handlerService.CheckPasswordAsync(credentials).ConfigureAwait(false);
+            var checkPasswordResult = await handlerService.CheckPasswordAsync(credentials, httpContext).ConfigureAwait(false);
 
             if (!checkPasswordResult.Success)
             {
@@ -58,7 +58,8 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
                     new Claim(ClaimTypes.Name, credentials.UserName, ClaimValueTypes.String),
                 };
 
-            await handlerService.AddClaimsAsync(credentials, claims, checkPasswordResult.Context).ConfigureAwait(false);
+            await handlerService.AddClaimsAsync(credentials, httpContext, claims, checkPasswordResult.Context)
+                .ConfigureAwait(false);
 
             var identity = new ClaimsIdentity(claims, Constants.AuthenticationName);
             var principal = new ClaimsPrincipal(identity);
@@ -86,7 +87,7 @@ internal sealed class BasicAuthenticationHandler : IAuthenticationHandler
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
 
-        this.context = context;
+        this.httpContext = context;
         return Task.CompletedTask;
     }
 }

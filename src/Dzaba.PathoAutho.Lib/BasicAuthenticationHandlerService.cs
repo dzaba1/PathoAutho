@@ -1,5 +1,6 @@
 ﻿using Dzaba.BasicAuthentication;
 using Dzaba.PathoAutho.Lib.Model;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
 namespace Dzaba.PathoAutho.Lib;
@@ -23,7 +24,8 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
         this.rolesService = rolesService;
     }
 
-    public async Task AddClaimsAsync(BasicAuthenticationCredentials credentials, ICollection<Claim> claims, object context)
+    public async Task AddClaimsAsync(BasicAuthenticationCredentials credentials, HttpContext httpContext,
+        ICollection<Claim> claims, object context)
     {
         var pathoIdentity = (PathoIdentityUser)context;
 
@@ -36,7 +38,7 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
         }
     }
 
-    public async Task<CheckPasswordResult> CheckPasswordAsync(BasicAuthenticationCredentials credentials)
+    public async Task<CheckPasswordResult> CheckPasswordAsync(BasicAuthenticationCredentials credentials, HttpContext httpContext)
     {
         ArgumentNullException.ThrowIfNull(credentials, nameof(credentials));
 
