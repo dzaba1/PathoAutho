@@ -15,7 +15,6 @@ public interface IClaimsService
     Task<int> NewPermissionAsync(Guid appId, string permissionName);
     Task AssignUserToRoleAsync(string userId, int roleId);
     Task AssignUserToPermissionAsync(string userId, int permissionId);
-    Task<Guid> NewApplicationAsync(string appName);
     IAsyncEnumerable<string> GetIdentityRolesAsync(PathoIdentityUser user);
     Task AssignUserToIdentiyRoleAsync(PathoIdentityUser user, string role);
 }
@@ -130,31 +129,6 @@ internal sealed class ClaimsService : IClaimsService
         {
             yield return item;
         }
-    }
-
-    public async Task<Guid> NewApplicationAsync(string appName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(appName, nameof(appName));
-
-        var exist = await dbContext.Applications.AnyAsync(p => p.Name == appName)
-            .ConfigureAwait(false);
-
-        if (exist)
-        {
-            throw new HttpResponseException(HttpStatusCode.BadRequest, $"Application {appName} already exists.");
-        }
-
-        var entity = new Model.Application
-        {
-            Name = appName
-        };
-
-        dbContext.Applications.Add(entity);
-        await dbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        logger.LogInformation("Created a new application {AppName}", appName);
-
-        return entity.Id;
     }
 
     public async Task<int> NewPermissionAsync(Guid appId, string permissionName)

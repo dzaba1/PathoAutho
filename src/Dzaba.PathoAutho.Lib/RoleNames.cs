@@ -2,5 +2,5 @@
 
 public static class RoleNames
 {
-    public static readonly string SuperAdmin = "SuperAdmin";
+    public const string SuperAdmin = "SuperAdmin";
 }

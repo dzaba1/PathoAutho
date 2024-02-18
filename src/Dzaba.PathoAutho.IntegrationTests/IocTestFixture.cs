@@ -50,4 +50,9 @@ public class IocTestFixture
 
         return await userMgr.FindUserByNameAsync(model.Email).ConfigureAwait(false);
     }
+
+    protected IApplicationService GetApplicationService()
+    {
+        return Container.GetRequiredService<IApplicationService>();
+    }
 }
