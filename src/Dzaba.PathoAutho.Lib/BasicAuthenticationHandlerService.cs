@@ -9,19 +9,19 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
 {
     private readonly IUserService userService;
     private readonly ILoginService loginService;
-    private readonly IRoleService rolesService;
+    private readonly IHttpClaimsService claimsService;
 
     public BasicAuthenticationHandlerService(IUserService userService,
             ILoginService loginService,
-            IRoleService rolesService)
+            IHttpClaimsService claimsService)
     {
         ArgumentNullException.ThrowIfNull(userService, nameof(userService));
         ArgumentNullException.ThrowIfNull(loginService, nameof(loginService));
-        ArgumentNullException.ThrowIfNull(rolesService, nameof(rolesService));
+        ArgumentNullException.ThrowIfNull(claimsService, nameof(claimsService));
 
         this.userService = userService;
         this.loginService = loginService;
-        this.rolesService = rolesService;
+        this.claimsService = claimsService;
     }
 
     public async Task AddClaimsAsync(BasicAuthenticationCredentials credentials, HttpContext httpContext,
@@ -32,9 +32,9 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
         claims.Add(new Claim("UserId", pathoIdentity.Id, ClaimValueTypes.String));
         claims.Add(new Claim(ClaimTypes.Email, pathoIdentity.Email, ClaimValueTypes.Email));
 
-        await foreach (var role in rolesService.GetIdentityRolesAsync(pathoIdentity).ConfigureAwait(false))
+        await foreach (var role in claimsService.GetAppClaimsAsync(pathoIdentity, httpContext).ConfigureAwait(false))
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(role);
         }
     }
 

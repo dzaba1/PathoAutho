@@ -3,6 +3,7 @@ using Dzaba.BasicAuthentication;
 using Dzaba.PathoAutho.Lib.Model;
 using Dzaba.TestUtils;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 using System.Security.Claims;
@@ -98,9 +99,9 @@ public class BasicAuthenticationHandlerServiceTests
         };
         var claims = new List<Claim>();
 
-        fixture.FreezeMock<IRoleService>()
-            .Setup(x => x.GetIdentityRolesAsync(user))
-            .Returns(new[] { "SuperUser" }.ToAsyncEnumerable());
+        fixture.FreezeMock<IHttpClaimsService>()
+            .Setup(x => x.GetAppClaimsAsync(user, It.IsAny<HttpContext>()))
+            .Returns(new[] { new Claim(ClaimTypes.Role, RoleNames.SuperAdmin) }.ToAsyncEnumerable());
 
         var sut = CreateSut();
 
@@ -110,7 +111,7 @@ public class BasicAuthenticationHandlerServiceTests
         claims[0].Value.Should().Be(user.Id);
         claims[1].Value.Should().Be(user.Email);
         claims[1].Type.Should().Be(ClaimTypes.Email);
-        claims[2].Value.Should().Be("SuperUser");
+        claims[2].Value.Should().Be(RoleNames.SuperAdmin);
         claims[2].Type.Should().Be(ClaimTypes.Role);
     }
 }
