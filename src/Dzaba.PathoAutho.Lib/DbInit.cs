@@ -32,7 +32,11 @@ internal sealed class DbInit : IDbInit
 
     public async Task InitAsync()
     {
-        await dbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
+        var created = await dbContext.Database.EnsureCreatedAsync().ConfigureAwait(false);
+        if (!created)
+        {
+            return;
+        }
 
         var identityResult = await roleManager.CreateAsync(new IdentityRole(RoleNames.SuperAdmin))
             .ConfigureAwait(false);
