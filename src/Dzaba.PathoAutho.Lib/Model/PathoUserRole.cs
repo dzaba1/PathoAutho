@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dzaba.PathoAutho.Lib.Model;
@@ -8,6 +9,8 @@ namespace Dzaba.PathoAutho.Lib.Model;
 public class PathoUserRole
 {
     public int RoleId { get; set; }
+
+    [Required(AllowEmptyStrings = false)]
     public string UserId { get; set; } 
 
     public virtual PathoRole Role { get; set; }

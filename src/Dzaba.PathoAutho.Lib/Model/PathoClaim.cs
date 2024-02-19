@@ -21,15 +21,25 @@ public class PathoClaim
     public string Value { get; set; }
 
     public Guid ApplicationId { get; set; }
+
+    [Required(AllowEmptyStrings = false)]
+    public string UserId { get; set; }
+
     public virtual Application Application { get; set; }
 
-    public virtual ICollection<PathoUserClaim> Users { get; set; }
+    public virtual PathoIdentityUser User { get; set; }
 
     public static void Configure(EntityTypeBuilder<PathoClaim> builder)
     {
         builder.HasOne(p => p.Application)
             .WithMany(p => p.Claims)
             .HasForeignKey(p => p.ApplicationId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(p => p.User)
+            .WithMany(p => p.PathoClaims)
+            .HasForeignKey(p => p.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
     }

@@ -17,7 +17,6 @@ public class AppDbContext : IdentityDbContext<PathoIdentityUser>
         Application.Configure(modelBuilder.Entity<Application>());
         ApplicationAdmin.Configure(modelBuilder.Entity<ApplicationAdmin>());
         PathoClaim.Configure(modelBuilder.Entity<PathoClaim>());
-        PathoUserClaim.Configure(modelBuilder.Entity<PathoUserClaim>());
         PathoRole.Configure(modelBuilder.Entity<PathoRole>());
         PathoUserRole.Configure(modelBuilder.Entity<PathoUserRole>());
     }
@@ -25,8 +24,6 @@ public class AppDbContext : IdentityDbContext<PathoIdentityUser>
     public DbSet<Application> Applications { get; set; }
 
     public DbSet<PathoClaim> PathoClaims { get; set; }
-
-    public DbSet<PathoUserClaim> PathoUserClaims { get; set; }
 
     public DbSet<PathoRole> PathoRoles { get; set; }
 
