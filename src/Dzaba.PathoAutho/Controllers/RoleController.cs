@@ -69,4 +69,36 @@ public class RoleController : ControllerBase
         return await roleService.NewRoleAsync(newRole.ApplicationId, newRole.RoleName)
             .ConfigureAwait(false);
     }
+
+    [HttpPost("{roleId}/user/{userName}")]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    public async Task AssignUserToRoleAsync(string userName, int roleId)
+    {
+        var user = await userService.FindUserByNameAsync(userName)
+            .ConfigureAwait(false);
+
+        if (user == null)
+        {
+            throw new HttpResponseException(HttpStatusCode.BadRequest, $"User {userName} not found.");
+        }
+
+        await roleService.AssignUserToRoleAsync(user.Id, roleId)
+            .ConfigureAwait(false);
+    }
+
+    [HttpDelete("{roleId}/user/{userName}")]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    public async Task RemoveUserFromRoleAsync(string userName, int roleId)
+    {
+        var user = await userService.FindUserByNameAsync(userName)
+            .ConfigureAwait(false);
+
+        if (user == null)
+        {
+            throw new HttpResponseException(HttpStatusCode.BadRequest, $"User {userName} not found.");
+        }
+
+        await roleService.RemoveUserFromRoleAsync(user.Id, roleId)
+            .ConfigureAwait(false);
+    }
 }

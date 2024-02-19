@@ -27,12 +27,15 @@ internal class HttpClaimsService : IHttpClaimsService
             yield return new Claim(ClaimTypes.Role, role);
         }
 
-        if (!TryGetAppId(httpContext, out var appId))
+        var appId = await TryGetAppIdAsync(httpContext)
+            .ConfigureAwait(false);
+
+        if (appId == null)
         {
             yield break;
         }
 
-        var isAdmin = await roleService.IsApplicationAdminAsync(user.Id, appId)
+        var isAdmin = await roleService.IsApplicationAdminAsync(user.Id, appId.Value)
             .ConfigureAwait(false);
         if (isAdmin)
         {
@@ -40,39 +43,69 @@ internal class HttpClaimsService : IHttpClaimsService
         }
     }
 
-    private bool TryGetAppId(HttpContext httpContext, out Guid id)
+    private async Task<Guid?> TryGetAppIdAsync(HttpContext httpContext)
     {
         var request = httpContext.Request;
 
         if (request.Path.StartsWithSegments("/Application"))
         {
-            if (TryGetAppIdFromRouteValues(request.RouteValues, "appId", out id))
+            var appId = TryGetFromRouteValues<Guid>(request.RouteValues, "appId", s =>
             {
-                return true;
+                if (Guid.TryParse(s, out var id))
+                {
+                    return id;
+                }
+                return null;
+            });
+
+            if (appId != null)
+            {
+                return appId;
             }
         }
 
-        id = Guid.Empty;
-        return false;
+        if (request.Path.StartsWithSegments("/Role"))
+        {
+            var roleId = TryGetFromRouteValues<int>(request.RouteValues, "roleId", s =>
+            {
+                if (int.TryParse(s, out var id))
+                {
+                    return id;
+                }
+                return null;
+            });
+
+            if (roleId != null)
+            {
+                var role = await roleService.GetRoleAsync(roleId.Value)
+                    .ConfigureAwait(false);
+                if (role != null)
+                {
+                    return role.ApplicationId;
+                }
+            }
+        }
+
+        return null;
     }
 
-    private bool TryGetAppIdFromRouteValues(IReadOnlyDictionary<string, object> routeValues, string keyName, out Guid id)
+    private T? TryGetFromRouteValues<T>(IReadOnlyDictionary<string, object> routeValues, string keyName,
+        Func<string, T?> parser)
+        where T : struct
     {
         if (routeValues != null && routeValues.TryGetValue(keyName, out var valueRaw))
         {
-            if (valueRaw is Guid)
+            if (valueRaw is T)
             {
-                id = (Guid)valueRaw;
-                return true;
+                return (T)valueRaw;
             }
 
-            if (valueRaw is string && Guid.TryParse((string)valueRaw, out id))
+            if (valueRaw is string)
             {
-                return true;
+                return parser((string)valueRaw);
             }
         }
 
-        id = Guid.Empty;
-        return false;
+        return null;
     }
 }
