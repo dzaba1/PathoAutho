@@ -130,4 +130,39 @@ public class HttpClaimsServiceTests
         claims[0].Value.Should().Be(RoleNames.AppAdmin);
         claims[0].Type.Should().Be(ClaimTypes.Role);
     }
+
+    [Test]
+    public async Task GetAppClaimsAsync_WhenClaimIdProvided_ThenAdminRole()
+    {
+        var appId = Guid.NewGuid();
+        var claimId = 123;
+        var user = new PathoIdentityUser("user");
+
+        fixture.FreezeMock<IRoleService>()
+            .Setup(x => x.IsApplicationAdminAsync(user.Id, appId))
+            .ReturnsAsync(true);
+
+        fixture.FreezeMock<IClaimService>()
+            .Setup(x => x.GetClaimAsync(claimId))
+            .ReturnsAsync(new PathoClaim
+            {
+                ApplicationId = appId,
+                Id = claimId
+            });
+
+        var httpContext = GetHttpContext($"/Claim/{claimId}/",
+            new Dictionary<string, object>()
+            {
+                { "claimId", claimId.ToString() }
+            });
+
+        var sut = CreateSut();
+
+        var claims = await sut.GetAppClaimsAsync(user, httpContext).ToArrayAsync()
+            .ConfigureAwait(false);
+
+        claims.Should().HaveCount(1);
+        claims[0].Value.Should().Be(RoleNames.AppAdmin);
+        claims[0].Type.Should().Be(ClaimTypes.Role);
+    }
 }

@@ -12,12 +12,16 @@ internal interface IHttpClaimsService
 internal class HttpClaimsService : IHttpClaimsService
 {
     private readonly IRoleService roleService;
+    private readonly IClaimService claimService;
 
-    public HttpClaimsService(IRoleService roleService)
+    public HttpClaimsService(IRoleService roleService,
+        IClaimService claimService)
     {
         ArgumentNullException.ThrowIfNull(roleService, nameof(roleService));
+        ArgumentNullException.ThrowIfNull(claimService, nameof(claimService));
 
         this.roleService = roleService;
+        this.claimService = claimService;
     }
 
     public async IAsyncEnumerable<Claim> GetAppClaimsAsync(PathoIdentityUser user, HttpContext httpContext)
@@ -82,6 +86,28 @@ internal class HttpClaimsService : IHttpClaimsService
                 if (role != null)
                 {
                     return role.ApplicationId;
+                }
+            }
+        }
+
+        if (request.Path.StartsWithSegments("/Claim"))
+        {
+            var claimId = TryGetFromRouteValues<int>(request.RouteValues, "claimId", s =>
+            {
+                if (int.TryParse(s, out var id))
+                {
+                    return id;
+                }
+                return null;
+            });
+
+            if (claimId != null)
+            {
+                var claim = await claimService.GetClaimAsync(claimId.Value)
+                    .ConfigureAwait(false);
+                if (claim != null)
+                {
+                    return claim.ApplicationId;
                 }
             }
         }
