@@ -2,12 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using Dzaba.PathoAutho.Contracts;
 
 namespace Dzaba.PathoAutho.Lib.Model;
 
-[Table("Permissions")]
-public class Permission
+[Table("PathoClaims")]
+public class PathoClaim
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -15,28 +14,23 @@ public class Permission
 
     [Required(AllowEmptyStrings = false)]
     [MaxLength(256)]
-    public string Name { get; set; }
+    public string Type { get; set; }
+
+    [Required(AllowEmptyStrings = false)]
+    [MaxLength(256)]
+    public string Value { get; set; }
 
     public Guid ApplicationId { get; set; }
     public virtual Application Application { get; set; }
 
-    public virtual ICollection<UserPermission> Users { get; set; }
+    public virtual ICollection<PathoUserClaim> Users { get; set; }
 
-    public static void Configure(EntityTypeBuilder<Permission> builder)
+    public static void Configure(EntityTypeBuilder<PathoClaim> builder)
     {
         builder.HasOne(p => p.Application)
-            .WithMany(p => p.Permissions)
+            .WithMany(p => p.Claims)
             .HasForeignKey(p => p.ApplicationId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
-    }
-
-    public NamedEntity<int> ToModel()
-    {
-        return new NamedEntity<int>
-        {
-            Id = Id,
-            Name = Name
-        };
     }
 }

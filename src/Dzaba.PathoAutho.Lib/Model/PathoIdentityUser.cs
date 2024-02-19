@@ -10,7 +10,7 @@ public class PathoIdentityUser : IdentityUser
     {
     }
 
-    public virtual ICollection<UserPermission> Permissions { get; set; }
+    public virtual ICollection<PathoUserClaim> PathoClaims { get; set; }
 
     public virtual ICollection<PathoUserRole> PathoRoles { get; set; }
 
