@@ -42,12 +42,12 @@ public class ApplicationController : ControllerBase
             .ConfigureAwait(false);
     }
 
-    [HttpPut]
+    [HttpPut("{appId}")]
     [ValidateModel]
     [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
-    public async Task ChangeApplicationAsync([FromBody, Required] ChangeApplication changeApplication)
+    public async Task ChangeApplicationAsync(Guid appId, [FromBody, Required] ChangeApplication changeApplication)
     {
-        await appService.ChangeNameAsync(changeApplication.Id, changeApplication.NewName)
+        await appService.ChangeNameAsync(appId, changeApplication.NewName)
             .ConfigureAwait(false);
     }
 
