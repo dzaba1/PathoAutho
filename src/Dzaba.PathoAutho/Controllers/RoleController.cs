@@ -1,7 +1,9 @@
 ﻿using Dzaba.PathoAutho.ActionFilters;
+using Dzaba.PathoAutho.Contracts;
 using Dzaba.PathoAutho.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace Dzaba.PathoAutho.Controllers;
@@ -13,12 +15,15 @@ public class RoleController : ControllerBase
 {
     private readonly IRoleService roleService;
     private readonly IUserService userService;
+    private readonly IAuthHelper authHelper;
 
     public RoleController(IRoleService roleService,
-        IUserService userService)
+        IUserService userService,
+        IAuthHelper authHelper)
     {
         this.roleService = roleService;
         this.userService = userService;
+        this.authHelper = authHelper;
     }
 
     [HttpPost("identity/{role}/user/{userName}")]
@@ -50,6 +55,18 @@ public class RoleController : ControllerBase
         }
 
         await roleService.RemoveUserFromIdentiyRoleAsync(user, role)
+            .ConfigureAwait(false);
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateModel]
+    public async Task<int> NewRole([Required, FromBody] NewRole newRole)
+    {
+        await authHelper.CheckSuperOrAppAdminAsync(User, newRole.ApplicationId)
+            .ConfigureAwait(false);
+
+        return await roleService.NewRoleAsync(newRole.ApplicationId, newRole.RoleName)
             .ConfigureAwait(false);
     }
 }
