@@ -24,6 +24,9 @@ public class PathoRole
 
     public static void Configure(EntityTypeBuilder<PathoRole> builder)
     {
+        builder.HasIndex(p => new { p.Name, p.ApplicationId })
+            .IsUnique();
+
         builder.HasOne(p => p.Application)
             .WithMany(p => p.Roles)
             .HasForeignKey(p => p.ApplicationId)

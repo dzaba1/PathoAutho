@@ -31,6 +31,9 @@ public class PathoClaim
 
     public static void Configure(EntityTypeBuilder<PathoClaim> builder)
     {
+        builder.HasIndex(p => new { p.Type, p.Value, p.ApplicationId, p.UserId })
+            .IsUnique();
+
         builder.HasOne(p => p.Application)
             .WithMany(p => p.Claims)
             .HasForeignKey(p => p.ApplicationId)

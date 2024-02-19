@@ -61,8 +61,8 @@ public class IocTestFixture
         return Container.GetRequiredService<IRoleService>();
     }
 
-    protected IPermissionService GetPermisionService()
+    protected IClaimService GetClaimService()
     {
-        return Container.GetRequiredService<IPermissionService>();
+        return Container.GetRequiredService<IClaimService>();
     }
 }
