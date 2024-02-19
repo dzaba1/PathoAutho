@@ -33,6 +33,7 @@ public static class Bootstrapper
         services.AddTransient<IRoleService, RolesService>();
         services.AddTransient<IDbInit, DbInit>();
         services.AddTransient<IHttpClaimsService, HttpClaimsService>();
+        services.AddTransient<IAuthHelper, AuthHelper>();
 
         services.AddBasicAuthentication<BasicAuthenticationHandlerService>();
         services.AddAuthentication(o =>
