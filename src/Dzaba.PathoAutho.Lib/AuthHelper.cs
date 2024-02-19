@@ -8,6 +8,8 @@ namespace Dzaba.PathoAutho.Lib;
 public interface IAuthHelper
 {
     Task CheckSuperOrAppAdminAsync(ClaimsPrincipal principal, Guid appId);
+    Task<bool> IsSuperAdminAsync(ClaimsPrincipal principal);
+    Task<bool> IsAppAdminAsync(ClaimsPrincipal principal, Guid appId);
 }
 
 internal sealed class AuthHelper : IAuthHelper
@@ -27,26 +29,66 @@ internal sealed class AuthHelper : IAuthHelper
 
     public async Task CheckSuperOrAppAdminAsync(ClaimsPrincipal principal, Guid appId)
     {
-        ArgumentNullException.ThrowIfNull(principal, nameof(principal));
+        if (principal == null)
+        {
+            throw new HttpResponseException(HttpStatusCode.Unauthorized, "Access denied.");
+        }
 
-        if (principal.HasClaim(ClaimTypes.Role, RoleNames.SuperAdmin) ||
-            principal.HasClaim(ClaimTypes.Role, RoleNames.AppAdmin))
+        if (await IsSuperAdminAsync(principal).ConfigureAwait(false))
         {
             return;
+        }
+
+        if (await IsAppAdminAsync(principal, appId).ConfigureAwait(false))
+        {
+            return;
+        }
+
+        throw new HttpResponseException(HttpStatusCode.Unauthorized, "Access denied.");
+    }
+
+    public async Task<bool> IsAppAdminAsync(ClaimsPrincipal principal, Guid appId)
+    {
+        if (principal == null)
+        {
+            return false;
+        }
+
+        if (principal.HasClaim(ClaimTypes.Role, RoleNames.AppAdmin))
+        {
+            return true;
         }
 
         var user = await userManager.FindByNameAsync(principal.Identity.Name).ConfigureAwait(false);
         if (user != null)
         {
-            var isAdmin = await roleService.IsApplicationAdminAsync(user.Id, appId)
-            .ConfigureAwait(false);
-
-            if (isAdmin)
-            {
-                return;
-            }
+            return await roleService.IsApplicationAdminAsync(user.Id, appId)
+                .ConfigureAwait(false);
         }
 
-        throw new HttpResponseException(HttpStatusCode.Unauthorized, "Access denied.");
+        return false;
+    }
+
+    public async Task<bool> IsSuperAdminAsync(ClaimsPrincipal principal)
+    {
+        if (principal == null)
+        {
+            return false;
+        }
+
+        if (principal.HasClaim(ClaimTypes.Role, RoleNames.SuperAdmin))
+        {
+            return true;
+        }
+
+        var user = await userManager.FindByNameAsync(principal.Identity.Name).ConfigureAwait(false);
+        if (user != null)
+        {
+            return await roleService.GetIdentityRolesAsync(user)
+                .AnyAsync(r => r == RoleNames.SuperAdmin)
+                .ConfigureAwait(false);
+        }
+
+        return false;
     }
 }

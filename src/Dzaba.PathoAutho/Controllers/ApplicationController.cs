@@ -67,61 +67,61 @@ public class ApplicationController : ControllerBase
             .ConfigureAwait(false);
     }
 
-    [HttpGet("{appId}/admin")]
-    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
-    public async Task<User[]> GetAdminsAsync(Guid appId)
-    {
-        return await roleService.GetAdmins(appId)
-            .Select(u => u.ToModel())
-            .ToArrayAsync()
-            .ConfigureAwait(false);
-    }
+    //[HttpGet("{appId}/admin")]
+    //[Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    //public async Task<User[]> GetAdminsAsync(Guid appId)
+    //{
+    //    return await roleService.GetAdmins(appId)
+    //        .Select(u => u.ToModel())
+    //        .ToArrayAsync()
+    //        .ConfigureAwait(false);
+    //}
 
-    [HttpGet("{appId}")]
-    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
-    public async Task<ApplicationData> GetAppData(Guid appId)
-    {
-        var app = await appService.GetApplicationAsync(appId)
-            .ConfigureAwait(false);
+    //[HttpGet("{appId}")]
+    //[Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    //public async Task<ApplicationData> GetAppData(Guid appId)
+    //{
+    //    var app = await appService.GetApplicationAsync(appId)
+    //        .ConfigureAwait(false);
 
-        if (app == null)
-        {
-            throw new HttpResponseException(HttpStatusCode.BadRequest, $"App with ID {appId} doesn't exist.");
-        }
+    //    if (app == null)
+    //    {
+    //        throw new HttpResponseException(HttpStatusCode.BadRequest, $"App with ID {appId} doesn't exist.");
+    //    }
 
-        var admins = await roleService.GetAdmins(appId)
-            .Select(u => u.ToModel())
-            .ToArrayAsync()
-            .ConfigureAwait(false);
+    //    var admins = await roleService.GetAdmins(appId)
+    //        .Select(u => u.ToModel())
+    //        .ToArrayAsync()
+    //        .ConfigureAwait(false);
 
-        var rolesQuery = from r in dbContext.PathoRoles
-                         join ur in dbContext.PathoUserRoles on r.Id equals ur.RoleId
-                         join u in dbContext.Users on ur.UserId equals u.Id
-                         where r.ApplicationId == appId
-                         select new { r, u };
-        var roles = rolesQuery.GroupBy(r => r.r, r => r.u).ToAsyncEnumerable();
+    //    var rolesQuery = from r in dbContext.PathoRoles
+    //                     join ur in dbContext.PathoUserRoles on r.Id equals ur.RoleId
+    //                     join u in dbContext.Users on ur.UserId equals u.Id
+    //                     where r.ApplicationId == appId
+    //                     select new { r, u };
+    //    var roles = rolesQuery.GroupBy(r => r.r, r => r.u).ToAsyncEnumerable();
 
-        var permissionsQuery = from p in dbContext.Permissions
-                         join up in dbContext.UserPermissions on p.Id equals up.PermissionId
-                         join u in dbContext.Users on up.UserId equals u.Id
-                         where p.ApplicationId == appId
-                         select new { p, u };
-        var permissions = permissionsQuery.GroupBy(p => p.p, p => p.u).ToAsyncEnumerable();
+    //    var permissionsQuery = from p in dbContext.Permissions
+    //                     join up in dbContext.UserPermissions on p.Id equals up.PermissionId
+    //                     join u in dbContext.Users on up.UserId equals u.Id
+    //                     where p.ApplicationId == appId
+    //                     select new { p, u };
+    //    var permissions = permissionsQuery.GroupBy(p => p.p, p => p.u).ToAsyncEnumerable();
 
-        return new ApplicationData
-        {
-            Application = app.ToModel(),
-            Admins = admins,
-            Roles = await roles.Select(r => new ClaimAssignment
-            {
-                Claim = r.Key.ToModel(),
-                Users = r.Select(u => u.ToModel()).ToArray()
-            }).ToArrayAsync().ConfigureAwait(false),
-            Permissions = await permissions.Select(r => new ClaimAssignment
-            {
-                Claim = r.Key.ToModel(),
-                Users = r.Select(u => u.ToModel()).ToArray()
-            }).ToArrayAsync().ConfigureAwait(false)
-        };
-    }
+    //    return new ApplicationData
+    //    {
+    //        Application = app.ToModel(),
+    //        Admins = admins,
+    //        Roles = await roles.Select(r => new ClaimAssignment
+    //        {
+    //            Claim = r.Key.ToModel(),
+    //            Users = r.Select(u => u.ToModel()).ToArray()
+    //        }).ToArrayAsync().ConfigureAwait(false),
+    //        Permissions = await permissions.Select(r => new ClaimAssignment
+    //        {
+    //            Claim = r.Key.ToModel(),
+    //            Users = r.Select(u => u.ToModel()).ToArray()
+    //        }).ToArrayAsync().ConfigureAwait(false)
+    //    };
+    //}
 }
