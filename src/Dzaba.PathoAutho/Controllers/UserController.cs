@@ -37,4 +37,12 @@ public class UserController : ControllerBase
         return await modelHelper.GetForCurrentUserAsync(User)
             .ConfigureAwait(false);
     }
+
+    [HttpGet("current/application/{appId}")]
+    [Authorize]
+    public async Task<ApplicationPermissionsWithUser> GetCurrent(Guid appId)
+    {
+        return await modelHelper.GetForCurrentUserAsync(User, appId)
+            .ConfigureAwait(false);
+    }
 }
