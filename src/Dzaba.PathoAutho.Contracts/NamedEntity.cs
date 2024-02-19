@@ -2,7 +2,7 @@
 
 namespace Dzaba.PathoAutho.Contracts;
 
-public sealed class NamedEntity<TId>
+public class NamedEntity<TId>
     where TId : IEquatable<TId>
 {
     public TId Id { get; set; }

@@ -13,10 +13,13 @@ namespace Dzaba.PathoAutho.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService userService;
+    private readonly IModelHelper modelHelper;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService,
+        IModelHelper modelHelper)
     {
         this.userService = userService;
+        this.modelHelper = modelHelper;
     }
 
     [HttpPost]
@@ -25,5 +28,13 @@ public class UserController : ControllerBase
     public async Task Register([FromBody, Required] RegisterUser newUser)
     {
         await userService.RegisterAsync(newUser).ConfigureAwait(false);
+    }
+
+    [HttpGet("current")]
+    [Authorize]
+    public async Task<UserWithApplicationsPermission> GetCurrent()
+    {
+        return await modelHelper.GetForCurrentUserAsync(User)
+            .ConfigureAwait(false);
     }
 }

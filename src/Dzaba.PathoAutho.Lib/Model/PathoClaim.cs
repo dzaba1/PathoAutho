@@ -46,4 +46,16 @@ public class PathoClaim
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
     }
+
+    public Contracts.Claim ToModel()
+    {
+        return new Contracts.Claim
+        {
+            Id = Id,
+            ApplicationId = ApplicationId,
+            UserId = UserId,
+            Type = Type,
+            Value = Value,
+        };
+    }
 }

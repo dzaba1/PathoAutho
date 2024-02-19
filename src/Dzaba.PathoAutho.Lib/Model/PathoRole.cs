@@ -34,12 +34,13 @@ public class PathoRole
             .OnDelete(DeleteBehavior.Cascade);
     }
 
-    public NamedEntity<int> ToModel()
+    public Role ToModel()
     {
-        return new NamedEntity<int>
+        return new Role
         {
             Id = Id,
             Name = Name,
+            ApplicationId = ApplicationId
         };
     }
 }
