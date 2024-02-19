@@ -96,7 +96,7 @@ internal sealed class BasicAuthenticationHandler : AuthenticationHandler<Authent
         if (Response.StatusCode == StatusCodes.Status401Unauthorized &&
             !string.IsNullOrWhiteSpace(failReason))
         {
-            await Response.WriteAsync(failReason).ConfigureAwait(false);
+            await handlerService.HandleUnauthorizedAsync(Context, failReason).ConfigureAwait(false);
         }
     }
 }

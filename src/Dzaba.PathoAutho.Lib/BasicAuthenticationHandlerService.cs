@@ -1,6 +1,7 @@
 ﻿using Dzaba.BasicAuthentication;
 using Dzaba.PathoAutho.Lib.Model;
 using Microsoft.AspNetCore.Http;
+using System.Net;
 using System.Security.Claims;
 
 namespace Dzaba.PathoAutho.Lib;
@@ -50,5 +51,13 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
 
         var result = await loginService.PasswordMatchAsync(pathoIdentity, credentials.Password).ConfigureAwait(false);
         return new CheckPasswordResult(result, pathoIdentity);
+    }
+
+    public async Task HandleUnauthorizedAsync(HttpContext httpContext, string failReason)
+    {
+        ArgumentNullException.ThrowIfNull(httpContext, nameof(httpContext));
+        ArgumentException.ThrowIfNullOrWhiteSpace(failReason, nameof(failReason));
+
+        await httpContext.Response.WriteAsync(failReason).ConfigureAwait(false);
     }
 }
