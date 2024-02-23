@@ -31,6 +31,7 @@
     <Authors>dzaba1</Authors>
     <RepositoryUrl>https://github.com/dzaba1/PathoAutho</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <WarningsAsErrors>CS1591</WarningsAsErrors>
   </PropertyGroup>
   <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
     <ItemGroup>
