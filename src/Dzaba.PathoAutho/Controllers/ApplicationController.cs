@@ -4,7 +4,6 @@ using Dzaba.PathoAutho.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace Dzaba.PathoAutho.Controllers;
 
@@ -15,15 +14,15 @@ public class ApplicationController : ControllerBase
 {
     private readonly IApplicationService appService;
     private readonly IRoleService roleService;
-    private readonly AppDbContext dbContext;
+    private readonly IModelHelper modelHelper;
 
     public ApplicationController(IApplicationService appService,
         IRoleService roleService,
-        AppDbContext dbContext)
+        IModelHelper modelHelper)
     {
         this.appService = appService;
         this.roleService = roleService;
-        this.dbContext = dbContext;
+        this.modelHelper = modelHelper;
     }
 
     [HttpPost("{appName}")]
@@ -64,6 +63,23 @@ public class ApplicationController : ControllerBase
     public async Task RevokeAdminAsync(Guid appId, string userName)
     {
         await roleService.RevokeApplicationAdminAsync(userName, appId)
+            .ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
+    public async Task<ApplicationData> Get(Guid appId)
+    {
+        return await modelHelper.GetApplicationDataAsync(appId)
+            .ConfigureAwait(false);
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<ApplicationData[]> Get()
+    {
+        return await modelHelper.GetApplicationDataAsync(User)
+            .ToArrayAsync()
             .ConfigureAwait(false);
     }
 }

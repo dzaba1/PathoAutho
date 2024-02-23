@@ -1,4 +1,5 @@
 ﻿using Dzaba.PathoAutho.Contracts;
+using Dzaba.PathoAutho.Lib.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Security.Claims;
@@ -9,6 +10,8 @@ public interface IModelHelper
 {
     Task<UserWithApplicationsPermission> GetForCurrentUserAsync(ClaimsPrincipal claimsPrincipal);
     Task<ApplicationPermissionsWithUser> GetForCurrentUserAsync(ClaimsPrincipal claimsPrincipal, Guid appId);
+    Task<ApplicationData> GetApplicationDataAsync(Guid appId);
+    IAsyncEnumerable<ApplicationData> GetApplicationDataAsync(ClaimsPrincipal claimsPrincipal);
 }
 
 internal sealed class ModelHelper : IModelHelper
@@ -36,6 +39,56 @@ internal sealed class ModelHelper : IModelHelper
         this.authHelper = authHelper;
         this.applicationService = applicationService;
         this.roleService = roleService;
+    }
+
+    public async Task<ApplicationData> GetApplicationDataAsync(Guid appId)
+    {
+        var app = await applicationService.GetApplicationAsync(appId).ConfigureAwait(false);
+        if (app == null)
+        {
+            return null;
+        }
+
+        return await GetApplicationDataAsync(app).ConfigureAwait(false);
+    }
+
+    private async Task<ApplicationData> GetApplicationDataAsync(Application app)
+    {
+        var roles = dbContext.PathoRoles.Where(r => r.ApplicationId == app.Id).AsAsyncEnumerable();
+        var rolesUser = from ur in dbContext.PathoUserRoles
+                        join u in dbContext.Users on ur.UserId equals u.Id
+                        join r in dbContext.PathoRoles on ur.RoleId equals r.Id
+                        where r.ApplicationId == app.Id
+                        select new { r, u };
+
+        var claims = dbContext.PathoClaims.Where(c => c.ApplicationId == app.Id).AsAsyncEnumerable();
+
+        return new ApplicationData
+        {
+            Application = app.ToModel(),
+            Admins = await roleService.GetAdmins(app.Id).Select(u => u.ToModel()).ToArrayAsync().ConfigureAwait(false),
+            Roles = await roles.Select(r => r.ToModel()).ToArrayAsync().ConfigureAwait(false),
+            RoleAssingments = await rolesUser.AsAsyncEnumerable().Select(ur => new UserRoleAssingment
+            {
+                Role = ur.r.ToModel(),
+                User = ur.u.ToModel(),
+            }).ToArrayAsync().ConfigureAwait(false),
+            Claims = await claims.Select(c => c.ToModel()).ToArrayAsync().ConfigureAwait(false)
+        };
+    }
+
+    public async IAsyncEnumerable<ApplicationData> GetApplicationDataAsync(ClaimsPrincipal claimsPrincipal)
+    {
+        var apps = dbContext.Applications.AsAsyncEnumerable();
+
+        await foreach (var app in apps.ConfigureAwait(false))
+        {
+            if (await authHelper.IsSuperAdminAsync(claimsPrincipal).ConfigureAwait(false) &&
+                await authHelper.IsAppAdminAsync(claimsPrincipal, app.Id).ConfigureAwait(false))
+            {
+                yield return await GetApplicationDataAsync(app);
+            }
+        }
     }
 
     public async Task<UserWithApplicationsPermission> GetForCurrentUserAsync(ClaimsPrincipal claimsPrincipal)

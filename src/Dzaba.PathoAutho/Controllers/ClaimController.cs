@@ -36,7 +36,7 @@ public class ClaimController : ControllerBase
 
     [HttpDelete("{claimId}")]
     [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
-    public async Task SetClaim(int claimId)
+    public async Task RemoveClaim(int claimId)
     {
         await claimService.RemoveClaimAsync(claimId).ConfigureAwait(false);
     }
