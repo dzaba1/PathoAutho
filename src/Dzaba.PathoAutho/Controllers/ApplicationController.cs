@@ -25,6 +25,11 @@ public class ApplicationController : ControllerBase
         this.modelHelper = modelHelper;
     }
 
+    /// <summary>
+    /// Creates a new application.
+    /// </summary>
+    /// <param name="appName">The new application name.</param>
+    /// <returns>ID guid of created application.</returns>
     [HttpPost("{appName}")]
     [Authorize(Roles = RoleNames.SuperAdmin)]
     public async Task<Guid> NewApplicationAsync(string appName)
@@ -33,6 +38,11 @@ public class ApplicationController : ControllerBase
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Removes an application.
+    /// </summary>
+    /// <param name="appId">Application ID.</param>
+    /// <returns></returns>
     [HttpDelete("{appId}")]
     [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
     public async Task RemoveApplicationAsync(Guid appId)
@@ -41,6 +51,12 @@ public class ApplicationController : ControllerBase
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Changes data of existing application.
+    /// </summary>
+    /// <param name="appId">Application ID.</param>
+    /// <param name="changeApplication">Data to change.</param>
+    /// <returns></returns>
     [HttpPut("{appId}")]
     [ValidateModel]
     [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
@@ -50,6 +66,12 @@ public class ApplicationController : ControllerBase
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Assigns a provided user ad an application admin.
+    /// </summary>
+    /// <param name="appId">Application ID.</param>
+    /// <param name="userName">User name</param>
+    /// <returns></returns>
     [HttpPost("{appId}/admin/user/{userName}")]
     [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
     public async Task SetAdminAsync(Guid appId, string userName)
@@ -66,7 +88,12 @@ public class ApplicationController : ControllerBase
             .ConfigureAwait(false);
     }
 
-    [HttpGet]
+    /// <summary>
+    /// Gets application data.
+    /// </summary>
+    /// <param name="appId">Application ID.</param>
+    /// <returns>Application data.</returns>
+    [HttpGet("{appId}")]
     [Authorize(Roles = RoleNames.SuperAdmin + "," + RoleNames.AppAdmin)]
     public async Task<ApplicationData> Get(Guid appId)
     {
@@ -74,9 +101,13 @@ public class ApplicationController : ControllerBase
             .ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Returns all application data.
+    /// </summary>
+    /// <returns>Array of all application data.</returns>
     [HttpGet]
     [Authorize]
-    public async Task<ApplicationData[]> Get()
+    public async Task<ApplicationData[]> GetAll()
     {
         return await modelHelper.GetApplicationDataAsync(User)
             .ToArrayAsync()
