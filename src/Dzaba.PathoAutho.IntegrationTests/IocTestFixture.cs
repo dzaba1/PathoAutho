@@ -66,4 +66,9 @@ public class IocTestFixture
     {
         return Container.GetRequiredService<IClaimService>();
     }
+
+    protected IUserService GetUserService()
+    {
+        return Container.GetRequiredService<IUserService>();
+    }
 }

@@ -45,4 +45,12 @@ public class UserController : ControllerBase
         return await modelHelper.GetForCurrentUserAsync(User, appId)
             .ConfigureAwait(false);
     }
+
+    [HttpDelete("{userName}")]
+    [Authorize(Roles = RoleNames.SuperAdmin)]
+    public async Task DeleteUser(string userName)
+    {
+        await userService.DeleteUserAsync(userName)
+            .ConfigureAwait(false);
+    }
 }

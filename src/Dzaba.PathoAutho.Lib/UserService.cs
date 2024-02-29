@@ -9,6 +9,7 @@ public interface IUserService
 {
     Task<PathoIdentityUser> RegisterAsync(RegisterUser newUser);
     Task<PathoIdentityUser> FindUserByNameAsync(string userName);
+    Task DeleteUserAsync(string userName);
 }
 
 internal sealed class UserService : IUserService
@@ -24,6 +25,23 @@ internal sealed class UserService : IUserService
 
         this.userManager = userManager;
         this.logger = logger;
+    }
+
+    public async Task DeleteUserAsync(string userName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName, nameof(userName));
+
+        var user = await FindUserByNameAsync(userName).ConfigureAwait(false);
+        if (user == null)
+        {
+            return;
+        }
+
+        var deleteResult = await userManager.DeleteAsync(user)
+            .ConfigureAwait(false);
+        deleteResult.EnsureSuccess();
+
+        logger.LogInformation("Delted user {UserName}", userName);
     }
 
     public async Task<PathoIdentityUser> FindUserByNameAsync(string userName)
