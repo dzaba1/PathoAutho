@@ -20,9 +20,10 @@ public class IocTestFixture
         var services = new ServiceCollection();
         services.RegisterDzabaPathoAuthoLib(o => o.UseInMemoryDatabase(Guid.NewGuid().ToString()));
 
+        var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}";
         var logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.Console()
+            .WriteTo.Console(outputTemplate: outputTemplate)
             .CreateLogger();
         services.AddLogging(l => l.AddSerilog(logger, true));
 

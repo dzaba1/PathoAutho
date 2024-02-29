@@ -6,10 +6,12 @@ using Serilog.Events;
 var builder = WebApplication.CreateBuilder(args);
 
 var logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"logs\PathoAutho.log");
+var outputTemplate = "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}";
+
 var logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
-    .WriteTo.Console(LogEventLevel.Information)
-    .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true)
+    .WriteTo.Console(LogEventLevel.Information, outputTemplate: outputTemplate)
+    .WriteTo.File(logFile, rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true, outputTemplate: outputTemplate)
     .CreateLogger();
 builder.Services.AddLogging(l => l.AddSerilog(logger, true));
 
