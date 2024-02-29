@@ -64,9 +64,9 @@ internal sealed class BasicAuthenticationHandler : AuthenticationHandler<Authent
 
             var checkPasswordResult = await handlerService.CheckPasswordAsync(credentials, Context).ConfigureAwait(false);
 
-            if (!checkPasswordResult.Success)
+            if (!checkPasswordResult.IsSuccess)
             {
-                return Fail("Username or password is invalid");
+                return Fail(checkPasswordResult.FailReason);
             }
 
             var claims = new List<Claim>(1)

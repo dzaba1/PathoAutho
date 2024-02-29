@@ -1,7 +1,6 @@
 ﻿using Dzaba.BasicAuthentication;
 using Dzaba.PathoAutho.Lib.Model;
 using Microsoft.AspNetCore.Http;
-using System.Net;
 using System.Security.Claims;
 
 namespace Dzaba.PathoAutho.Lib;
@@ -46,11 +45,11 @@ internal sealed class BasicAuthenticationHandlerService : IBasicAuthenticationHa
         var pathoIdentity = await userService.FindUserByNameAsync(credentials.UserName).ConfigureAwait(false);
         if (pathoIdentity == null)
         {
-            return new CheckPasswordResult(false);
+            return new CheckPasswordResult("Username or password is invalid");
         }
 
         var result = await loginService.PasswordMatchAsync(pathoIdentity, credentials.Password).ConfigureAwait(false);
-        return new CheckPasswordResult(result, pathoIdentity);
+        return new CheckPasswordResult(result ? null : "Username or password is invalid", pathoIdentity);
     }
 
     public async Task HandleUnauthorizedAsync(HttpContext httpContext, string failReason)
