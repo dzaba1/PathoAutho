@@ -22,4 +22,6 @@ RUN dotnet publish "./Dzaba.PathoAutho.csproj" -c $BUILD_CONFIGURATION -o /app/p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+ENV PATHOAUTHO_CONNECTION_STRING=
+VOLUME /app/logs
 ENTRYPOINT ["dotnet", "Dzaba.PathoAutho.dll"]

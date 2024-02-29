@@ -16,7 +16,7 @@ var logger = new LoggerConfiguration()
 builder.Services.AddLogging(l => l.AddSerilog(logger, true));
 
 // Add services to the container.
-builder.Services.RegisterDzabaPathoAuthoLib(o => o.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+builder.Services.RegisterDzabaPathoAuthoLib(o => o.UseSqlServer(GetConnectionString(builder.Configuration)));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -44,3 +44,14 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+string GetConnectionString(IConfiguration configuration)
+{
+    var envConnStr = Environment.GetEnvironmentVariable("PATHOAUTHO_CONNECTION_STRING");
+    if (string.IsNullOrWhiteSpace(envConnStr))
+    {
+        return configuration.GetConnectionString("Default");
+    }
+
+    return envConnStr;
+}
