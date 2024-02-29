@@ -261,10 +261,10 @@ internal class RolesService : IRoleService
             throw new HttpResponseException(HttpStatusCode.BadRequest, $"User {userName} doesn't exist.");
         }
 
-        var appExists = await dbContext.Applications.AnyAsync(a => a.Id == appId)
+        var app = await dbContext.Applications.FirstOrDefaultAsync(a => a.Id == appId)
             .ConfigureAwait(false);
 
-        if (!appExists)
+        if (app == null)
         {
             throw new HttpResponseException(HttpStatusCode.BadRequest, $"Application with ID {appId} doesn't exist.");
         }
@@ -286,6 +286,6 @@ internal class RolesService : IRoleService
         dbContext.ApplicationAdmins.Add(entity);
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
-        logger.LogInformation("Set user {UserName} as admin of application {AppName}", userName, entity.Application.Name);
+        logger.LogInformation("Set user {UserName} as admin of application {AppName}", userName, app.Name);
     }
 }
