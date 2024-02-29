@@ -48,7 +48,7 @@ namespace Dzaba.PathoAutho.Client
 
         public async Task<CheckPasswordResult> CheckPasswordAsync(BasicAuthenticationCredentials credentials, HttpContext httpContext)
         {
-            var url = new Uri(settings.BaseUrl, $"current/application/{settings.ApplicationId}");
+            var url = new Uri(settings.BaseUrl, $"user/current/application/{settings.ApplicationId}");
 
             try
             {
@@ -63,8 +63,11 @@ namespace Dzaba.PathoAutho.Client
                 }
                 resp.EnsureSuccessStatusCode();
 
-                using var stream = await resp.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                var permissions = JsonSerializer.DeserializeAsync<ApplicationPermissionsWithUser>(stream).ConfigureAwait(false);
+                var contentStr = await resp.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var permissions = JsonSerializer.Deserialize<ApplicationPermissionsWithUser>(contentStr, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
 
                 return CheckPasswordResult.Success(permissions);
             }
