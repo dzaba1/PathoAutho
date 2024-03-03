@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.PathoAutho.Lib.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.PathoAutho.Client", "src\Dzaba.PathoAutho.Client\Dzaba.PathoAutho.Client.csproj", "{C8E221BA-01DB-4809-834A-DF3F26A29E8C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.PathoAutho.TestApp", "src\Dzaba.PathoAutho.TestApp\Dzaba.PathoAutho.TestApp.csproj", "{C17BC690-9445-4F85-8941-E10F22BC56D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.PathoAutho.TestApp", "src\Dzaba.PathoAutho.TestApp\Dzaba.PathoAutho.TestApp.csproj", "{C17BC690-9445-4F85-8941-E10F22BC56D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dzaba.BasicAuthentication.Tests", "src\Dzaba.BasicAuthentication.Tests\Dzaba.BasicAuthentication.Tests.csproj", "{01A11046-182C-4EDD-A18D-FE426EE54726}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,10 @@ Global
 		{C17BC690-9445-4F85-8941-E10F22BC56D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C17BC690-9445-4F85-8941-E10F22BC56D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C17BC690-9445-4F85-8941-E10F22BC56D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01A11046-182C-4EDD-A18D-FE426EE54726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01A11046-182C-4EDD-A18D-FE426EE54726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01A11046-182C-4EDD-A18D-FE426EE54726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01A11046-182C-4EDD-A18D-FE426EE54726}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

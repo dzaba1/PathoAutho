@@ -39,4 +39,42 @@ public sealed class BasicAuthenticationCredentials
         var base64EncodedAuthenticationString = Convert.ToBase64String(Encoding.ASCII.GetBytes(authenticationString));
         return new AuthenticationHeaderValue("Basic", base64EncodedAuthenticationString);
     }
+
+    /// <summary>
+    /// Tries to parse Authorization header value.
+    /// </summary>
+    /// <param name="header">Authorization header value.</param>
+    /// <param name="result">New <see cref="BasicAuthenticationCredentials"/> object on success. Null on failure.</param>
+    /// <returns>True on success.</returns>
+    public static bool TryParseHeader(string header, out BasicAuthenticationCredentials result)
+    {
+        if (string.IsNullOrWhiteSpace(header))
+        {
+            result = null;
+            return false;
+        }
+
+        if (!AuthenticationHeaderValue.TryParse(header, out var authorizationHeader))
+        {
+            result = null;
+            return false;
+        }
+
+        if (!string.Equals(authorizationHeader.Scheme, "Basic", StringComparison.OrdinalIgnoreCase))
+        {
+            result = null;
+            return false;
+        }
+
+        var credentialBytes = Convert.FromBase64String(authorizationHeader.Parameter);
+        var credentialsArray = Encoding.UTF8.GetString(credentialBytes).Split(':');
+        if (credentialsArray.Length >= 2 )
+        {
+            result = new BasicAuthenticationCredentials(credentialsArray[0], credentialsArray[1]);
+            return true;
+        }
+
+        result = null;
+        return false;
+    }
 }

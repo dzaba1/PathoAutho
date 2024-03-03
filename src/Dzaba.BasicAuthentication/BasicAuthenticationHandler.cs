@@ -46,21 +46,12 @@ internal sealed class BasicAuthenticationHandler : AuthenticationHandler<Authent
             return Fail("Missing Authorization header.");
         }
 
-        if (!AuthenticationHeaderValue.TryParse(authorizationHeaderRaw, out var authorizationHeader))
-        {
-            return Fail("Error parsing Authorization header value.");
-        }
-
-        if (!string.Equals(authorizationHeader.Scheme, "Basic", StringComparison.OrdinalIgnoreCase))
-        {
-            return Fail("Invalid Authorization header value.");
-        }
-
         try
         {
-            var credentialBytes = Convert.FromBase64String(authorizationHeader.Parameter);
-            var credentialsArray = Encoding.UTF8.GetString(credentialBytes).Split(':');
-            var credentials = new BasicAuthenticationCredentials(credentialsArray[0], credentialsArray[1]);
+            if (!BasicAuthenticationCredentials.TryParseHeader(authorizationHeaderRaw, out var credentials))
+            {
+                return Fail("Invalid Authorization header value.");
+            }
 
             var checkPasswordResult = await handlerService.CheckPasswordAsync(credentials, Context).ConfigureAwait(false);
 
@@ -70,9 +61,9 @@ internal sealed class BasicAuthenticationHandler : AuthenticationHandler<Authent
             }
 
             var claims = new List<Claim>(1)
-                    {
-                        new Claim(ClaimTypes.Name, credentials.UserName, ClaimValueTypes.String),
-                    };
+            {
+                new Claim(ClaimTypes.Name, credentials.UserName, ClaimValueTypes.String),
+            };
 
             await handlerService.AddClaimsAsync(credentials, Context, claims, checkPasswordResult.Context)
                 .ConfigureAwait(false);
