@@ -1,0 +1,1 @@
+﻿# HTTP contracts and model for Dzaba PathoAutho
