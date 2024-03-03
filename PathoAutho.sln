@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3547CC73-BDE3-4519-A717-90A66B6FA0E0}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Packages.props = Directory.Packages.props
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dzaba.BasicAuthentication", "src\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj", "{250BB9FF-E9CF-42E3-86FD-3CDED1C5E315}"
