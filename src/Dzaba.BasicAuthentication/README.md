@@ -2,6 +2,8 @@
 
 ## Usage
 
+Install nuget https://www.nuget.org/packages/Dzaba.BasicAuthentication/
+
 In Startup or Program.cs:
 ```
 var builder = WebApplication.CreateBuilder(args);

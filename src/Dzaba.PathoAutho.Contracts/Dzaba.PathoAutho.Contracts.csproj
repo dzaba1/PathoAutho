@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Description>HTTP contracts and model for Dzaba PathoAutho</Description>
   </PropertyGroup>
 
   <ItemGroup>

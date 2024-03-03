@@ -5,11 +5,20 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Description>PathoAutho client library and handler for ASP.NET</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj" PackageVersion="[1.0.1,2.0)" />
-    <ProjectReference Include="..\Dzaba.PathoAutho.Contracts\Dzaba.PathoAutho.Contracts.csproj" PackageVersion="[1.0.1,2.0)" />
+    <ProjectReference Include="..\Dzaba.BasicAuthentication\Dzaba.BasicAuthentication.csproj" PackageVersion="[1.0.0,2.0)" />
+    <ProjectReference Include="..\Dzaba.PathoAutho.Contracts\Dzaba.PathoAutho.Contracts.csproj" PackageVersion="[1.0.0,2.0)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  
 </Project>
