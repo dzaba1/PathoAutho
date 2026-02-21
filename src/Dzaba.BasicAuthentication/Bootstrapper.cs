@@ -13,12 +13,14 @@ public static class Bootstrapper
     /// </summary>
     /// <typeparam name="THandler">Handler type</typeparam>
     /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-    public static void AddBasicAuthentication<THandler>(this IServiceCollection services)
+    public static IServiceCollection AddBasicAuthentication<THandler>(this IServiceCollection services)
         where THandler : class, IBasicAuthenticationHandlerService
     {
-        ArgumentNullException.ThrowIfNull(services, nameof(services));
+        ArgumentNullException.ThrowIfNull(services);
 
         services.AddTransient<IBasicAuthenticationHandlerService, THandler>();
+
+        return services;
     }
 
     /// <summary>
@@ -30,7 +32,7 @@ public static class Bootstrapper
     public static AuthenticationOptions AddBasicAuthenticationScheme(this AuthenticationOptions options,
         bool isDefault = false)
     {
-        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
 
         options.AddScheme<BasicAuthenticationHandler>(Constants.SchemeName, "Basic authentication");
 

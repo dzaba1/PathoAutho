@@ -1,6 +1,6 @@
 using Dzaba.PathoAutho.Lib;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Serilog;
 using Serilog.Events;
 

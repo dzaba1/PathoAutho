@@ -5,7 +5,7 @@
 Install nuget https://www.nuget.org/packages/Dzaba.BasicAuthentication/
 
 In Startup or Program.cs:
-```
+```csharp
 var builder = WebApplication.CreateBuilder(args);
 
 // ...
@@ -21,7 +21,7 @@ builder.Services.AddAuthorization();
 ```
 
 Where `MyHandler` is your custom implementation. Example:
-```
+```csharp
 internal sealed class MyHandler : IBasicAuthenticationHandlerService
 {
     private readonly IMyUserService userService;

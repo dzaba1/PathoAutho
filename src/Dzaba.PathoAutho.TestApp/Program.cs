@@ -1,7 +1,7 @@
 using Dzaba.PathoAutho.Client;
 using Serilog.Events;
 using Serilog;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
